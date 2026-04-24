@@ -139,6 +139,11 @@
       letter-spacing: 1px;
       margin-bottom: 6px;
     }
+    .field label .opt {
+      font-weight: 400;
+      text-transform: none;
+      letter-spacing: 0;
+    }
 
     input[type=text],
     input[type=number],
@@ -254,7 +259,10 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      cursor: pointer;
+      transition: background 0.12s;
     }
+    .trade:active { background: var(--surface2); }
     .trade-top {
       display: flex;
       align-items: center;
@@ -273,7 +281,7 @@
     .badge-shares  { background: rgba(59,130,246,0.15); color: var(--shares); }
     .badge-options { background: rgba(168,85,247,0.15);  color: var(--options); }
     .trade-meta { font-size: 11px; color: var(--muted); }
-    .trade-right { text-align: right; }
+    .trade-right { text-align: right; flex-shrink: 0; margin-left: 12px; }
     .trade-result {
       font-size: 20px;
       font-weight: 800;
@@ -283,6 +291,17 @@
     .result-win  { color: var(--win); }
     .result-loss { color: var(--loss); }
     .result-even { color: var(--muted); }
+    .result-open {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      background: rgba(107,107,128,0.15);
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-block;
+    }
     .trade-risk-lbl { font-size: 11px; color: var(--muted); }
 
     .empty-state {
@@ -290,6 +309,51 @@
       padding: 40px 20px;
       color: var(--muted);
       font-size: 14px;
+    }
+
+    /* ── Bottom sheet ── */
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.65);
+      z-index: 200;
+    }
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100%;
+      max-width: 480px;
+      background: var(--surface);
+      border-radius: 16px 16px 0 0;
+      padding: 12px 16px 32px;
+      z-index: 201;
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .sheet-handle {
+      width: 36px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 14px;
+    }
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .sheet-header span { font-size: 14px; font-weight: 600; }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 2px 6px;
+      line-height: 1;
     }
 
     /* ── Toast ── */
@@ -309,7 +373,7 @@
       transition: all 0.25s ease;
       pointer-events: none;
       white-space: nowrap;
-      z-index: 100;
+      z-index: 300;
     }
     .toast.show  { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.error { background: var(--loss); color: #fff; }
@@ -347,10 +411,9 @@
   </div>
 </div>
 
-<!-- Form -->
+<!-- Log form -->
 <div class="card">
   <div class="form-grid">
-
     <div class="form-grid row-2">
       <div class="field">
         <label>Ticker</label>
@@ -367,7 +430,6 @@
         </div>
       </div>
     </div>
-
     <div class="form-grid row-2">
       <div class="field">
         <label>Risk</label>
@@ -388,21 +450,18 @@
         </select>
       </div>
     </div>
-
     <div class="field">
-      <label>Result</label>
+      <label>Result <span class="opt">— optional, leave blank if open</span></label>
       <div class="r-wrap">
         <input type="number" id="f-result" placeholder="e.g. 2 or -1" step="0.25" />
         <span class="r-suffix">R</span>
       </div>
     </div>
-
     <button class="btn-log" id="btn-log" onclick="logTrade()">LOG TRADE</button>
-
   </div>
 </div>
 
-<!-- Trade Log -->
+<!-- Trade log -->
 <div class="log-header">
   <span>Log</span>
   <button class="refresh-btn" onclick="loadTrades()">↻ Refresh</button>
@@ -411,12 +470,73 @@
   <div class="empty-state">Loading…</div>
 </div>
 
+<!-- Edit bottom sheet -->
+<div class="overlay" id="overlay" onclick="closeEdit()" style="display:none"></div>
+<div class="bottom-sheet" id="bottom-sheet" style="display:none">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <span>Edit Trade</span>
+    <button class="close-btn" onclick="closeEdit()">✕</button>
+  </div>
+  <div class="form-grid">
+    <div class="form-grid row-2">
+      <div class="field">
+        <label>Ticker</label>
+        <input type="text" id="e-ticker" autocomplete="off"
+               autocapitalize="characters" maxlength="10" />
+      </div>
+      <div class="field">
+        <label>Type</label>
+        <div class="toggle">
+          <button class="toggle-btn" id="e-btn-shares"
+                  onclick="setEditType('shares')">Shares</button>
+          <button class="toggle-btn" id="e-btn-options"
+                  onclick="setEditType('options')">Options</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-grid row-2">
+      <div class="field">
+        <label>Risk</label>
+        <div class="r-wrap">
+          <input type="number" id="e-risk" step="0.25" min="0.25" />
+          <span class="r-suffix">R</span>
+        </div>
+      </div>
+      <div class="field">
+        <label>Stop Type</label>
+        <select id="e-stop">
+          <option value="">Select…</option>
+          <option value="Mental Stop">Mental Stop</option>
+          <option value="Low of Day">Low of Day</option>
+          <option value="Pivot Low">Pivot Low</option>
+          <option value="Break Even">Break Even</option>
+          <option value="Manual Stop">Manual Stop</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Result <span class="opt">— optional</span></label>
+      <div class="r-wrap">
+        <input type="number" id="e-result" placeholder="Leave blank if still open"
+               step="0.25" />
+        <span class="r-suffix">R</span>
+      </div>
+    </div>
+    <button class="btn-log" id="btn-update" onclick="submitEdit()">UPDATE TRADE</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-  let tradeType  = 'shares';
-  let scriptUrl  = localStorage.getItem('tradeLoggerUrl') || '';
+  let tradeType    = 'shares';
+  let editType     = 'shares';
+  let editRow      = null;
+  let currentTrades = [];
+  let scriptUrl    = localStorage.getItem('tradeLoggerUrl') || '';
 
+  /* ── Init ── */
   function init() {
     if (!scriptUrl) {
       document.getElementById('setup').style.display = 'block';
@@ -427,8 +547,9 @@
     }
   }
 
+  /* ── Settings ── */
   function toggleSetup() {
-    const el     = document.getElementById('setup');
+    const el = document.getElementById('setup');
     const hidden = el.style.display === 'none';
     el.style.display = hidden ? 'block' : 'none';
     if (hidden && scriptUrl) document.getElementById('urlInput').value = scriptUrl;
@@ -446,6 +567,7 @@
     loadTrades();
   }
 
+  /* ── Add trade form ── */
   function setType(type) {
     tradeType = type;
     document.getElementById('btn-shares').className  =
@@ -460,17 +582,15 @@
     const stop   = document.getElementById('f-stop').value;
     const result = document.getElementById('f-result').value.trim();
 
-    if (!ticker || !risk || !stop || result === '') {
-      toast('Fill in all fields', true); return;
+    if (!ticker || !risk || !stop) {
+      toast('Ticker, risk and stop are required', true); return;
     }
     if (!scriptUrl) {
-      toast('Set your Apps Script URL first', true);
-      toggleSetup(); return;
+      toast('Set your Apps Script URL first', true); toggleSetup(); return;
     }
 
     const btn = document.getElementById('btn-log');
-    btn.disabled = true;
-    btn.textContent = 'Logging…';
+    btn.disabled = true; btn.textContent = 'Logging…';
 
     try {
       const params = new URLSearchParams({
@@ -478,7 +598,6 @@
       });
       const res  = await fetch(`${scriptUrl}?${params}`);
       const data = await res.json();
-
       if (data.success) {
         toast('Trade logged!');
         ['f-ticker','f-risk','f-result'].forEach(id =>
@@ -489,22 +608,22 @@
         toast(data.error || 'Error logging trade', true);
       }
     } catch (err) {
-      toast('Connection failed — check URL', true);
-      console.error(err);
+      toast('Connection failed — check URL', true); console.error(err);
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'LOG TRADE';
+      btn.disabled = false; btn.textContent = 'LOG TRADE';
     }
   }
 
+  /* ── Load & render ── */
   async function loadTrades() {
     if (!scriptUrl) return;
     try {
       const res    = await fetch(`${scriptUrl}?action=get`);
       const trades = await res.json();
       if (!Array.isArray(trades)) throw new Error('Bad response');
+      currentTrades = [...trades].reverse(); // newest first
       setStats(trades);
-      renderTrades([...trades].reverse());
+      renderTrades(currentTrades);
     } catch (err) {
       setEmpty('Could not load trades. Check your Apps Script URL.');
       console.error(err);
@@ -516,13 +635,17 @@
     if (!trades.length) {
       el.innerHTML = '<div class="empty-state">No trades logged yet.</div>'; return;
     }
-    el.innerHTML = trades.map(t => {
+    el.innerHTML = trades.map((t, i) => {
       const r      = parseFloat(t.result);
-      const cls    = isNaN(r) ? 'result-even' : r > 0 ? 'result-win' : r < 0 ? 'result-loss' : 'result-even';
+      const isOpen = !t.result || t.result === '';
+      const cls    = isOpen ? '' : r > 0 ? 'result-win' : r < 0 ? 'result-loss' : 'result-even';
       const badge  = t.type === 'shares' ? 'badge-shares' : 'badge-options';
-      const rDisp  = isNaN(r) ? t.result : (r > 0 ? '+' : '') + r + 'R';
+      const rDisp  = isOpen
+        ? '<span class="result-open">Open</span>'
+        : `<div class="trade-result ${cls}">${(r > 0 ? '+' : '') + r}R</div>`;
+
       return `
-        <div class="trade">
+        <div class="trade" onclick="openEdit(${i})">
           <div>
             <div class="trade-top">
               <span class="ticker">${t.ticker}</span>
@@ -531,32 +654,105 @@
             <div class="trade-meta">${t.date} · ${t.stopType}</div>
           </div>
           <div class="trade-right">
-            <div class="trade-result ${cls}">${rDisp}</div>
+            ${rDisp}
             <div class="trade-risk-lbl">${t.risk} risk</div>
           </div>
         </div>`;
     }).join('');
   }
 
+  /* ── Stats ── */
   function setStats(trades) {
-    const results = trades.map(t => parseFloat(t.result)).filter(n => !isNaN(n));
+    const results = trades
+      .filter(t => t.result && t.result !== '')
+      .map(t => parseFloat(t.result))
+      .filter(n => !isNaN(n));
+
     document.getElementById('s-trades').textContent = trades.length || '0';
+
     if (!results.length) {
       document.getElementById('s-winrate').textContent = '—';
       document.getElementById('s-avgr').textContent    = '—';
       document.getElementById('s-avgr').style.color    = '';
       return;
     }
+
     const wins = results.filter(r => r > 0).length;
     const wr   = Math.round((wins / results.length) * 100);
     const avg  = results.reduce((a, b) => a + b, 0) / results.length;
 
     document.getElementById('s-winrate').textContent = wr + '%';
     const avgEl = document.getElementById('s-avgr');
-    avgEl.textContent  = (avg >= 0 ? '+' : '') + avg.toFixed(2) + 'R';
-    avgEl.style.color  = avg > 0 ? 'var(--win)' : avg < 0 ? 'var(--loss)' : '';
+    avgEl.textContent = (avg >= 0 ? '+' : '') + avg.toFixed(2) + 'R';
+    avgEl.style.color = avg > 0 ? 'var(--win)' : avg < 0 ? 'var(--loss)' : '';
   }
 
+  /* ── Edit sheet ── */
+  function openEdit(index) {
+    const t = currentTrades[index];
+    if (!t) return;
+    editRow = t.row;
+
+    document.getElementById('e-ticker').value = t.ticker;
+    setEditType(t.type || 'shares');
+    document.getElementById('e-risk').value   = parseFloat(t.risk) || '';
+    document.getElementById('e-stop').value   = t.stopType || '';
+    const r = parseFloat(t.result);
+    document.getElementById('e-result').value = isNaN(r) ? '' : r;
+
+    document.getElementById('overlay').style.display      = 'block';
+    document.getElementById('bottom-sheet').style.display = 'block';
+  }
+
+  function closeEdit() {
+    document.getElementById('overlay').style.display      = 'none';
+    document.getElementById('bottom-sheet').style.display = 'none';
+    editRow = null;
+  }
+
+  function setEditType(type) {
+    editType = type;
+    document.getElementById('e-btn-shares').className  =
+      'toggle-btn' + (type === 'shares'  ? ' active-shares'  : '');
+    document.getElementById('e-btn-options').className =
+      'toggle-btn' + (type === 'options' ? ' active-options' : '');
+  }
+
+  async function submitEdit() {
+    const ticker = document.getElementById('e-ticker').value.trim().toUpperCase();
+    const risk   = document.getElementById('e-risk').value.trim();
+    const stop   = document.getElementById('e-stop').value;
+    const result = document.getElementById('e-result').value.trim();
+
+    if (!ticker || !risk || !stop) {
+      toast('Ticker, risk and stop are required', true); return;
+    }
+    if (!editRow) return;
+
+    const btn = document.getElementById('btn-update');
+    btn.disabled = true; btn.textContent = 'Updating…';
+
+    try {
+      const params = new URLSearchParams({
+        action: 'update', row: editRow, ticker, type: editType, risk, stopType: stop, result
+      });
+      const res  = await fetch(`${scriptUrl}?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        toast('Trade updated!');
+        closeEdit();
+        loadTrades();
+      } else {
+        toast(data.error || 'Error updating', true);
+      }
+    } catch (err) {
+      toast('Connection failed', true); console.error(err);
+    } finally {
+      btn.disabled = false; btn.textContent = 'UPDATE TRADE';
+    }
+  }
+
+  /* ── Helpers ── */
   function setEmpty(msg) {
     document.getElementById('trade-list').innerHTML =
       `<div class="empty-state">${msg}</div>`;
