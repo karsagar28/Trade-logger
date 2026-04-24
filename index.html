@@ -636,8 +636,9 @@
       el.innerHTML = '<div class="empty-state">No trades logged yet.</div>'; return;
     }
     el.innerHTML = trades.map((t, i) => {
-      const r      = parseFloat(t.result);
-      const isOpen = !t.result || t.result === '' || isNaN(r);
+      const resultStr = String(t.result ?? '').trim();
+      const r         = parseFloat(resultStr);
+      const isOpen    = !resultStr || isNaN(r);
       const cls    = isOpen ? '' : r > 0 ? 'result-win' : r < 0 ? 'result-loss' : 'result-even';
       const badge  = t.type === 'shares' ? 'badge-shares' : 'badge-options';
       const rDisp  = isOpen
