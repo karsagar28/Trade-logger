@@ -5,6 +5,7 @@ function doGet(e) {
   const action = (e.parameter && e.parameter.action) || 'get';
   if (action === 'add')    return addTrade(e.parameter);
   if (action === 'update') return updateTrade(e.parameter);
+  if (action === 'delete') return deleteTrade(e.parameter);
   return getTrades();
 }
 
@@ -13,9 +14,14 @@ function getSheet_() {
   let sh = ss.getSheetByName('Trades');
   if (!sh) {
     sh = ss.insertSheet('Trades');
-    sh.appendRow(['Date', 'Ticker', 'Type', 'Risk', 'Stop Type', 'Result']);
+    sh.appendRow(['Date','Ticker','Type','Risk','Stop Type','Result','Close Type','Reason']);
     sh.setFrozenRows(1);
-    sh.getRange(1, 1, 1, 6).setFontWeight('bold');
+    sh.getRange(1, 1, 1, 8).setFontWeight('bold');
+  } else {
+    // Auto-migrate older sheets that predate Close Type / Reason columns
+    const lastCol = sh.getLastColumn();
+    if (lastCol < 7) sh.getRange(1, 7).setValue('Close Type').setFontWeight('bold');
+    if (lastCol < 8) sh.getRange(1, 8).setValue('Reason').setFontWeight('bold');
   }
   return sh;
 }
@@ -25,9 +31,12 @@ function addTrade(p) {
     const risk      = parseFloat(p.risk);
     const resultNum = (p.result !== undefined && p.result !== '') ? parseFloat(p.result) : null;
     const resultStr = resultNum !== null ? (resultNum >= 0 ? '+' : '') + resultNum + 'R' : '';
-    const date      = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'MMM d yyyy, h:mm a');
+    const date      = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'd MMM yy');
 
-    getSheet_().appendRow([date, p.ticker.toUpperCase(), p.type, risk + 'R', p.stopType, resultStr]);
+    getSheet_().appendRow([
+      date, p.ticker.toUpperCase(), p.type, risk + 'R', p.stopType,
+      resultStr, p.closeType || '', p.reason || ''
+    ]);
     return json_({ success: true });
   } catch (err) {
     return json_({ error: err.message });
@@ -49,7 +58,21 @@ function updateTrade(p) {
     sh.getRange(row, 4).setValue(risk + 'R');
     sh.getRange(row, 5).setValue(p.stopType);
     sh.getRange(row, 6).setValue(resultStr);
+    sh.getRange(row, 7).setValue(p.closeType || '');
+    sh.getRange(row, 8).setValue(p.reason    || '');
 
+    return json_({ success: true });
+  } catch (err) {
+    return json_({ error: err.message });
+  }
+}
+
+function deleteTrade(p) {
+  try {
+    const sh  = getSheet_();
+    const row = parseInt(p.row);
+    if (isNaN(row) || row < 2) return json_({ error: 'Invalid row' });
+    sh.deleteRow(row);
     return json_({ success: true });
   } catch (err) {
     return json_({ error: err.message });
@@ -61,15 +84,17 @@ function getTrades() {
     const sh   = getSheet_();
     const last = sh.getLastRow();
     if (last < 2) return json_([]);
-    const rows = sh.getRange(2, 1, last - 1, 6).getValues();
+    const rows = sh.getRange(2, 1, last - 1, 8).getValues();
     return json_(rows.map((r, i) => ({
-      row:      i + 2,
-      date:     r[0],
-      ticker:   r[1],
-      type:     r[2],
-      risk:     r[3],
-      stopType: r[4],
-      result:   r[5]
+      row:       i + 2,
+      date:      String(r[0] || ''),
+      ticker:    r[1] || '',
+      type:      r[2] || '',
+      risk:      r[3] || '',
+      stopType:  r[4] || '',
+      result:    r[5] || '',
+      closeType: r[6] || '',
+      reason:    r[7] || ''
     })));
   } catch (err) {
     return json_({ error: err.message });

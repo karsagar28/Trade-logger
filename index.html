@@ -64,12 +64,7 @@
       padding: 14px;
       margin-bottom: 16px;
     }
-    .setup-banner p {
-      font-size: 13px;
-      color: var(--muted);
-      margin-bottom: 10px;
-      line-height: 1.5;
-    }
+    .setup-banner p { font-size: 13px; color: var(--muted); margin-bottom: 10px; line-height: 1.5; }
     .url-row { display: flex; gap: 8px; }
     .url-row input {
       flex: 1;
@@ -83,15 +78,9 @@
     }
     .url-row input:focus { border-color: var(--accent); }
     .url-row button {
-      background: var(--accent);
-      color: #000;
-      border: none;
-      padding: 9px 14px;
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      white-space: nowrap;
+      background: var(--accent); color: #000; border: none;
+      padding: 9px 14px; border-radius: 8px;
+      font-size: 12px; font-weight: 700; cursor: pointer; white-space: nowrap;
     }
 
     /* ── Stats ── */
@@ -101,53 +90,40 @@
       gap: 8px;
       margin-bottom: 16px;
     }
-    .stat {
-      background: var(--surface);
-      border-radius: 10px;
-      padding: 12px 8px;
-      text-align: center;
-    }
-    .stat-val {
-      font-size: 22px;
-      font-weight: 700;
-      line-height: 1;
-      margin-bottom: 5px;
-    }
-    .stat-lbl {
-      font-size: 10px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 0.8px;
-    }
+    .stat { background: var(--surface); border-radius: 10px; padding: 12px 8px; text-align: center; }
+    .stat-val { font-size: 22px; font-weight: 700; line-height: 1; margin-bottom: 5px; }
+    .stat-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
 
-    /* ── Form card ── */
-    .card {
-      background: var(--surface);
-      border-radius: 12px;
-      padding: 14px;
-      margin-bottom: 16px;
+    /* ── Card ── */
+    .card { background: var(--surface); border-radius: 12px; margin-bottom: 16px; overflow: hidden; }
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      cursor: pointer;
+      user-select: none;
     }
+    .card-header span {
+      font-size: 11px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 1.5px;
+    }
+    .chevron { color: var(--muted); font-size: 14px; transition: transform 0.2s; }
+    .chevron.open { transform: rotate(180deg); }
+    .card-body { padding: 0 14px 14px; }
+
+    /* ── Form ── */
     .form-grid { display: grid; gap: 10px; }
     .row-2 { grid-template-columns: 1fr 1fr; }
 
     .field label {
-      display: block;
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      margin-bottom: 6px;
+      display: block; font-size: 10px; font-weight: 600;
+      color: var(--muted); text-transform: uppercase;
+      letter-spacing: 1px; margin-bottom: 6px;
     }
-    .field label .opt {
-      font-weight: 400;
-      text-transform: none;
-      letter-spacing: 0;
-    }
+    .field label .opt { font-weight: 400; text-transform: none; letter-spacing: 0; }
 
-    input[type=text],
-    input[type=number],
-    select {
+    input[type=text], input[type=number], select {
       width: 100%;
       background: var(--surface2);
       border: 1px solid var(--border);
@@ -161,7 +137,6 @@
       appearance: none;
     }
     input:focus, select:focus { border-color: var(--accent); }
-
     select {
       background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b6b80' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
       background-repeat: no-repeat;
@@ -173,24 +148,13 @@
     /* ── Type toggle ── */
     .toggle {
       display: flex;
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 3px;
-      gap: 3px;
-      height: 44px;
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 8px; padding: 3px; gap: 3px; height: 44px;
     }
     .toggle-btn {
-      flex: 1;
-      background: none;
-      border: none;
-      border-radius: 6px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 600;
-      font-family: var(--font);
-      cursor: pointer;
-      transition: all 0.15s ease;
+      flex: 1; background: none; border: none; border-radius: 6px;
+      color: var(--muted); font-size: 13px; font-weight: 600;
+      font-family: var(--font); cursor: pointer; transition: all 0.15s ease;
     }
     .active-shares  { background: var(--shares)  !important; color: #fff !important; }
     .active-options { background: var(--options) !important; color: #fff !important; }
@@ -199,181 +163,97 @@
     .r-wrap { position: relative; }
     .r-wrap input { padding-right: 28px; }
     .r-suffix {
-      position: absolute;
-      right: 11px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 600;
-      pointer-events: none;
+      position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+      color: var(--muted); font-size: 13px; font-weight: 600; pointer-events: none;
     }
 
     /* ── Submit ── */
     .btn-log {
-      width: 100%;
-      padding: 13px;
-      background: var(--accent);
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 800;
-      font-family: var(--font);
-      letter-spacing: 1.5px;
-      cursor: pointer;
-      margin-top: 2px;
-      transition: opacity 0.15s;
+      width: 100%; padding: 13px; background: var(--accent); color: #000;
+      border: none; border-radius: 8px; font-size: 14px; font-weight: 800;
+      font-family: var(--font); letter-spacing: 1.5px; cursor: pointer;
+      margin-top: 2px; transition: opacity 0.15s;
     }
     .btn-log:disabled { opacity: 0.4; cursor: not-allowed; }
 
     /* ── Log section ── */
     .log-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 10px;
+      display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;
     }
     .log-header span {
-      font-size: 11px;
-      color: var(--muted);
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      font-weight: 600;
+      font-size: 11px; color: var(--muted);
+      text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600;
     }
-    .refresh-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 13px;
-      cursor: pointer;
-      padding: 2px 6px;
-    }
+    .refresh-btn { background: none; border: none; color: var(--muted); font-size: 13px; cursor: pointer; padding: 2px 6px; }
 
     /* ── Trade item ── */
     .trade-list { display: flex; flex-direction: column; gap: 6px; }
     .trade {
-      background: var(--surface);
-      border-radius: 10px;
-      padding: 12px 14px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      transition: background 0.12s;
+      background: var(--surface); border-radius: 10px;
+      padding: 12px 14px; display: flex; align-items: center;
+      justify-content: space-between; cursor: pointer; transition: background 0.12s;
     }
     .trade:active { background: var(--surface2); }
-    .trade-top {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 3px;
-    }
+    .trade-top { display: flex; align-items: center; gap: 8px; margin-bottom: 3px; }
     .ticker { font-size: 16px; font-weight: 700; letter-spacing: 0.3px; }
     .badge {
-      font-size: 9px;
-      font-weight: 700;
-      padding: 2px 6px;
-      border-radius: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      font-size: 9px; font-weight: 700; padding: 2px 6px;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: 0.5px;
     }
     .badge-shares  { background: rgba(59,130,246,0.15); color: var(--shares); }
-    .badge-options { background: rgba(168,85,247,0.15);  color: var(--options); }
-    .trade-meta { font-size: 11px; color: var(--muted); }
+    .badge-options { background: rgba(168,85,247,0.15); color: var(--options); }
+    .trade-meta { font-size: 11px; color: var(--muted); line-height: 1.5; }
     .trade-right { text-align: right; flex-shrink: 0; margin-left: 12px; }
-    .trade-result {
-      font-size: 20px;
-      font-weight: 800;
-      line-height: 1;
-      margin-bottom: 2px;
-    }
+    .trade-result { font-size: 20px; font-weight: 800; line-height: 1; margin-bottom: 2px; }
     .result-win  { color: var(--win); }
     .result-loss { color: var(--loss); }
     .result-even { color: var(--muted); }
     .result-open {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--muted);
-      background: rgba(107,107,128,0.15);
-      padding: 4px 8px;
-      border-radius: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: inline-block;
+      font-size: 11px; font-weight: 700; color: var(--muted);
+      background: rgba(107,107,128,0.15); padding: 4px 8px;
+      border-radius: 6px; text-transform: uppercase; letter-spacing: 0.5px; display: inline-block;
     }
     .trade-risk-lbl { font-size: 11px; color: var(--muted); }
 
-    .empty-state {
-      text-align: center;
-      padding: 40px 20px;
-      color: var(--muted);
-      font-size: 14px;
-    }
+    .empty-state { text-align: center; padding: 40px 20px; color: var(--muted); font-size: 14px; }
 
     /* ── Bottom sheet ── */
-    .overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.65);
-      z-index: 200;
-    }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 200; }
     .bottom-sheet {
-      position: fixed;
-      bottom: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 480px;
-      background: var(--surface);
-      border-radius: 16px 16px 0 0;
-      padding: 12px 16px 32px;
-      z-index: 201;
-      max-height: 85vh;
-      overflow-y: auto;
+      position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 100%; max-width: 480px; background: var(--surface);
+      border-radius: 16px 16px 0 0; padding: 12px 16px 32px;
+      z-index: 201; max-height: 90vh; overflow-y: auto;
     }
-    .sheet-handle {
-      width: 36px;
-      height: 4px;
-      background: var(--border);
-      border-radius: 2px;
-      margin: 0 auto 14px;
-    }
-    .sheet-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
+    .sheet-handle { width: 36px; height: 4px; background: var(--border); border-radius: 2px; margin: 0 auto 14px; }
+    .sheet-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .sheet-header span { font-size: 14px; font-weight: 600; }
-    .close-btn {
-      background: none;
-      border: none;
-      color: var(--muted);
-      font-size: 18px;
-      cursor: pointer;
-      padding: 2px 6px;
-      line-height: 1;
+    .close-btn { background: none; border: none; color: var(--muted); font-size: 18px; cursor: pointer; padding: 2px 6px; line-height: 1; }
+
+    /* ── Delete zone ── */
+    .delete-zone { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
+    .btn-delete {
+      width: 100%; padding: 12px; background: none;
+      border: 1px solid rgba(255,71,87,0.4); color: var(--loss);
+      border-radius: 8px; font-size: 14px; font-weight: 600;
+      font-family: var(--font); cursor: pointer; transition: all 0.15s;
     }
+    .btn-delete:hover { background: rgba(255,71,87,0.08); }
+    .delete-confirm-text { font-size: 13px; color: var(--muted); margin-bottom: 10px; text-align: center; }
+    .confirm-row { display: flex; gap: 8px; }
+    .btn-cancel { flex: 1; padding: 11px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 14px; font-family: var(--font); cursor: pointer; }
+    .btn-confirm-del { flex: 1; padding: 11px; background: var(--loss); border: none; color: #fff; border-radius: 8px; font-size: 14px; font-weight: 700; font-family: var(--font); cursor: pointer; }
+    .btn-confirm-del:disabled { opacity: 0.5; cursor: not-allowed; }
 
     /* ── Toast ── */
     .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
+      position: fixed; bottom: 24px; left: 50%;
       transform: translateX(-50%) translateY(8px);
-      background: var(--accent);
-      color: #000;
-      padding: 10px 18px;
-      border-radius: 20px;
-      font-size: 13px;
-      font-weight: 700;
-      font-family: var(--font);
-      opacity: 0;
-      transition: all 0.25s ease;
-      pointer-events: none;
-      white-space: nowrap;
-      z-index: 300;
+      background: var(--accent); color: #000;
+      padding: 10px 18px; border-radius: 20px;
+      font-size: 13px; font-weight: 700; font-family: var(--font);
+      opacity: 0; transition: all 0.25s ease;
+      pointer-events: none; white-space: nowrap; z-index: 300;
     }
     .toast.show  { opacity: 1; transform: translateX(-50%) translateY(0); }
     .toast.error { background: var(--loss); color: #fff; }
@@ -397,67 +277,86 @@
 
 <!-- Stats -->
 <div class="stats">
-  <div class="stat">
-    <div class="stat-val" id="s-trades">—</div>
-    <div class="stat-lbl">Trades</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val" id="s-winrate">—</div>
-    <div class="stat-lbl">Win Rate</div>
-  </div>
-  <div class="stat">
-    <div class="stat-val" id="s-avgr">—</div>
-    <div class="stat-lbl">Avg R</div>
-  </div>
+  <div class="stat"><div class="stat-val" id="s-trades">—</div><div class="stat-lbl">Trades</div></div>
+  <div class="stat"><div class="stat-val" id="s-winrate">—</div><div class="stat-lbl">Win Rate</div></div>
+  <div class="stat"><div class="stat-val" id="s-avgr">—</div><div class="stat-lbl">Avg R</div></div>
 </div>
 
-<!-- Log form -->
+<!-- Log form (collapsible) -->
 <div class="card">
-  <div class="form-grid">
-    <div class="form-grid row-2">
-      <div class="field">
-        <label>Ticker</label>
-        <input type="text" id="f-ticker" placeholder="AAPL"
-               autocomplete="off" autocapitalize="characters" maxlength="10" />
-      </div>
-      <div class="field">
-        <label>Type</label>
-        <div class="toggle">
-          <button class="toggle-btn active-shares" id="btn-shares"
-                  onclick="setType('shares')">Shares</button>
-          <button class="toggle-btn" id="btn-options"
-                  onclick="setType('options')">Options</button>
+  <div class="card-header" onclick="toggleForm()">
+    <span>New Trade</span>
+    <span class="chevron open" id="form-chevron">▾</span>
+  </div>
+  <div class="card-body" id="form-body">
+    <div class="form-grid">
+
+      <div class="form-grid row-2">
+        <div class="field">
+          <label>Ticker</label>
+          <input type="text" id="f-ticker" placeholder="AAPL"
+                 autocomplete="off" autocapitalize="characters" maxlength="10" />
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <div class="toggle">
+            <button class="toggle-btn active-shares" id="btn-shares" onclick="setType('shares')">Shares</button>
+            <button class="toggle-btn" id="btn-options" onclick="setType('options')">Options</button>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="form-grid row-2">
+
+      <div class="form-grid row-2">
+        <div class="field">
+          <label>Risk</label>
+          <div class="r-wrap">
+            <input type="number" id="f-risk" placeholder="1" step="0.25" min="0.25" />
+            <span class="r-suffix">R</span>
+          </div>
+        </div>
+        <div class="field">
+          <label>Stop Type</label>
+          <select id="f-stop">
+            <option value="">Select…</option>
+            <option value="Mental Stop">Mental Stop</option>
+            <option value="Low of Day">Low of Day</option>
+            <option value="Pivot Low">Pivot Low</option>
+            <option value="Break Even">Break Even</option>
+            <option value="Manual Stop">Manual Stop</option>
+          </select>
+        </div>
+      </div>
+
       <div class="field">
-        <label>Risk</label>
+        <label>Close Type <span class="opt">— optional</span></label>
+        <select id="f-close" onchange="onCloseTypeChange('f')">
+          <option value="">Select…</option>
+          <option value="Stop Hit">Stop Hit</option>
+          <option value="Manual Close">Manual Close</option>
+        </select>
+      </div>
+
+      <div class="field" id="f-reason-row" style="display:none">
+        <label>Reason</label>
+        <select id="f-reason">
+          <option value="">Select…</option>
+          <option value="Panic">Panic</option>
+          <option value="Change of Mind">Change of Mind</option>
+          <option value="Made in Error">Made in Error</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Result <span class="opt">— optional · negative = loss · 0 = breakeven</span></label>
         <div class="r-wrap">
-          <input type="number" id="f-risk" placeholder="1" step="0.25" min="0.25" />
+          <input type="number" id="f-result" placeholder="e.g. 2 or -1" step="0.25" />
           <span class="r-suffix">R</span>
         </div>
       </div>
-      <div class="field">
-        <label>Stop Type</label>
-        <select id="f-stop">
-          <option value="">Select…</option>
-          <option value="Mental Stop">Mental Stop</option>
-          <option value="Low of Day">Low of Day</option>
-          <option value="Pivot Low">Pivot Low</option>
-          <option value="Break Even">Break Even</option>
-          <option value="Manual Stop">Manual Stop</option>
-        </select>
-      </div>
+
+      <button class="btn-log" id="btn-log" onclick="logTrade()">LOG TRADE</button>
+
     </div>
-    <div class="field">
-      <label>Result <span class="opt">— optional, leave blank if open</span></label>
-      <div class="r-wrap">
-        <input type="number" id="f-result" placeholder="e.g. 2 or -1" step="0.25" />
-        <span class="r-suffix">R</span>
-      </div>
-    </div>
-    <button class="btn-log" id="btn-log" onclick="logTrade()">LOG TRADE</button>
   </div>
 </div>
 
@@ -479,22 +378,21 @@
     <button class="close-btn" onclick="closeEdit()">✕</button>
   </div>
   <div class="form-grid">
+
     <div class="form-grid row-2">
       <div class="field">
         <label>Ticker</label>
-        <input type="text" id="e-ticker" autocomplete="off"
-               autocapitalize="characters" maxlength="10" />
+        <input type="text" id="e-ticker" autocomplete="off" autocapitalize="characters" maxlength="10" />
       </div>
       <div class="field">
         <label>Type</label>
         <div class="toggle">
-          <button class="toggle-btn" id="e-btn-shares"
-                  onclick="setEditType('shares')">Shares</button>
-          <button class="toggle-btn" id="e-btn-options"
-                  onclick="setEditType('options')">Options</button>
+          <button class="toggle-btn" id="e-btn-shares" onclick="setEditType('shares')">Shares</button>
+          <button class="toggle-btn" id="e-btn-options" onclick="setEditType('options')">Options</button>
         </div>
       </div>
     </div>
+
     <div class="form-grid row-2">
       <div class="field">
         <label>Risk</label>
@@ -515,26 +413,59 @@
         </select>
       </div>
     </div>
+
+    <div class="field">
+      <label>Close Type <span class="opt">— optional</span></label>
+      <select id="e-close" onchange="onCloseTypeChange('e')">
+        <option value="">Select…</option>
+        <option value="Stop Hit">Stop Hit</option>
+        <option value="Manual Close">Manual Close</option>
+      </select>
+    </div>
+
+    <div class="field" id="e-reason-row" style="display:none">
+      <label>Reason</label>
+      <select id="e-reason">
+        <option value="">Select…</option>
+        <option value="Panic">Panic</option>
+        <option value="Change of Mind">Change of Mind</option>
+        <option value="Made in Error">Made in Error</option>
+      </select>
+    </div>
+
     <div class="field">
       <label>Result <span class="opt">— optional</span></label>
       <div class="r-wrap">
-        <input type="number" id="e-result" placeholder="Leave blank if still open"
-               step="0.25" />
+        <input type="number" id="e-result" placeholder="Leave blank if still open" step="0.25" />
         <span class="r-suffix">R</span>
       </div>
     </div>
+
     <button class="btn-log" id="btn-update" onclick="submitEdit()">UPDATE TRADE</button>
+
+    <!-- Delete -->
+    <div class="delete-zone">
+      <button class="btn-delete" id="btn-delete" onclick="showDeleteConfirm()">Delete Entry</button>
+      <div id="delete-confirm" style="display:none">
+        <p class="delete-confirm-text">Permanently delete this trade?</p>
+        <div class="confirm-row">
+          <button class="btn-cancel" onclick="hideDeleteConfirm()">Cancel</button>
+          <button class="btn-confirm-del" id="btn-confirm-del" onclick="executeDelete()">Delete</button>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-  let tradeType    = 'shares';
-  let editType     = 'shares';
-  let editRow      = null;
+  let tradeType     = 'shares';
+  let editType      = 'shares';
+  let editRow       = null;
   let currentTrades = [];
-  let scriptUrl    = localStorage.getItem('tradeLoggerUrl') || '';
+  let scriptUrl     = localStorage.getItem('tradeLoggerUrl') || '';
 
   /* ── Init ── */
   function init() {
@@ -567,42 +498,59 @@
     loadTrades();
   }
 
-  /* ── Add trade form ── */
+  /* ── Collapsible form ── */
+  function toggleForm() {
+    const body    = document.getElementById('form-body');
+    const chevron = document.getElementById('form-chevron');
+    const isOpen  = body.style.display !== 'none';
+    body.style.display = isOpen ? 'none' : 'block';
+    chevron.className  = 'chevron' + (isOpen ? '' : ' open');
+  }
+
+  /* ── Close type / reason visibility ── */
+  function onCloseTypeChange(prefix) {
+    const isManual = document.getElementById(prefix + '-close').value === 'Manual Close';
+    document.getElementById(prefix + '-reason-row').style.display = isManual ? 'block' : 'none';
+    if (!isManual) document.getElementById(prefix + '-reason').value = '';
+  }
+
+  /* ── Add form ── */
   function setType(type) {
     tradeType = type;
-    document.getElementById('btn-shares').className  =
-      'toggle-btn' + (type === 'shares'  ? ' active-shares'  : '');
-    document.getElementById('btn-options').className =
-      'toggle-btn' + (type === 'options' ? ' active-options' : '');
+    document.getElementById('btn-shares').className  = 'toggle-btn' + (type === 'shares'  ? ' active-shares'  : '');
+    document.getElementById('btn-options').className = 'toggle-btn' + (type === 'options' ? ' active-options' : '');
   }
 
   async function logTrade() {
     const ticker = document.getElementById('f-ticker').value.trim().toUpperCase();
     const risk   = document.getElementById('f-risk').value.trim();
     const stop   = document.getElementById('f-stop').value;
+    const close  = document.getElementById('f-close').value;
+    const reason = document.getElementById('f-reason').value;
     const result = document.getElementById('f-result').value.trim();
 
     if (!ticker || !risk || !stop) {
       toast('Ticker, risk and stop are required', true); return;
     }
-    if (!scriptUrl) {
-      toast('Set your Apps Script URL first', true); toggleSetup(); return;
-    }
+    if (!scriptUrl) { toast('Set your Apps Script URL first', true); toggleSetup(); return; }
 
     const btn = document.getElementById('btn-log');
     btn.disabled = true; btn.textContent = 'Logging…';
 
     try {
       const params = new URLSearchParams({
-        action: 'add', ticker, type: tradeType, risk, stopType: stop, result
+        action: 'add', ticker, type: tradeType, risk,
+        stopType: stop, closeType: close, reason, result
       });
       const res  = await fetch(`${scriptUrl}?${params}`);
       const data = await res.json();
       if (data.success) {
         toast('Trade logged!');
-        ['f-ticker','f-risk','f-result'].forEach(id =>
-          document.getElementById(id).value = '');
-        document.getElementById('f-stop').value = '';
+        ['f-ticker','f-risk','f-result'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('f-stop').value  = '';
+        document.getElementById('f-close').value = '';
+        document.getElementById('f-reason').value = '';
+        document.getElementById('f-reason-row').style.display = 'none';
         loadTrades();
       } else {
         toast(data.error || 'Error logging trade', true);
@@ -621,7 +569,7 @@
       const res    = await fetch(`${scriptUrl}?action=get`);
       const trades = await res.json();
       if (!Array.isArray(trades)) throw new Error('Bad response');
-      currentTrades = [...trades].reverse(); // newest first
+      currentTrades = [...trades].reverse();
       setStats(trades);
       renderTrades(currentTrades);
     } catch (err) {
@@ -639,20 +587,26 @@
       const resultStr = String(t.result ?? '').trim();
       const r         = parseFloat(resultStr);
       const isOpen    = !resultStr || isNaN(r);
-      const cls    = isOpen ? '' : r > 0 ? 'result-win' : r < 0 ? 'result-loss' : 'result-even';
-      const badge  = t.type === 'shares' ? 'badge-shares' : 'badge-options';
-      const rDisp  = isOpen
+      const cls       = isOpen ? '' : r > 0 ? 'result-win' : r < 0 ? 'result-loss' : 'result-even';
+      const badge     = t.type === 'shares' ? 'badge-shares' : 'badge-options';
+
+      const rDisp = isOpen
         ? '<span class="result-open">Open</span>'
-        : `<div class="trade-result ${cls}">${(r > 0 ? '+' : '') + r}R</div>`;
+        : `<div class="trade-result ${cls}">${r > 0 ? '+' : ''}${r}R</div>`;
+
+      let meta = t.date || '';
+      if (t.stopType)  meta += (meta ? ' · ' : '') + t.stopType;
+      if (t.closeType) meta += (meta ? ' · ' : '') + t.closeType;
+      if (t.reason)    meta += ' — ' + t.reason;
 
       return `
         <div class="trade" onclick="openEdit(${i})">
-          <div>
+          <div style="min-width:0">
             <div class="trade-top">
               <span class="ticker">${t.ticker}</span>
               <span class="badge ${badge}">${t.type}</span>
             </div>
-            <div class="trade-meta">${t.date} · ${t.stopType}</div>
+            <div class="trade-meta">${meta}</div>
           </div>
           <div class="trade-right">
             ${rDisp}
@@ -665,8 +619,7 @@
   /* ── Stats ── */
   function setStats(trades) {
     const results = trades
-      .filter(t => t.result && t.result !== '')
-      .map(t => parseFloat(t.result))
+      .map(t => parseFloat(String(t.result ?? '')))
       .filter(n => !isNaN(n));
 
     document.getElementById('s-trades').textContent = trades.length || '0';
@@ -696,11 +649,15 @@
 
     document.getElementById('e-ticker').value = t.ticker;
     setEditType(t.type || 'shares');
-    document.getElementById('e-risk').value   = parseFloat(t.risk) || '';
-    document.getElementById('e-stop').value   = t.stopType || '';
-    const r = parseFloat(t.result);
+    document.getElementById('e-risk').value  = parseFloat(t.risk) || '';
+    document.getElementById('e-stop').value  = t.stopType  || '';
+    document.getElementById('e-close').value = t.closeType || '';
+    onCloseTypeChange('e');
+    document.getElementById('e-reason').value = t.reason || '';
+    const r = parseFloat(String(t.result ?? ''));
     document.getElementById('e-result').value = isNaN(r) ? '' : r;
 
+    hideDeleteConfirm();
     document.getElementById('overlay').style.display      = 'block';
     document.getElementById('bottom-sheet').style.display = 'block';
   }
@@ -713,21 +670,19 @@
 
   function setEditType(type) {
     editType = type;
-    document.getElementById('e-btn-shares').className  =
-      'toggle-btn' + (type === 'shares'  ? ' active-shares'  : '');
-    document.getElementById('e-btn-options').className =
-      'toggle-btn' + (type === 'options' ? ' active-options' : '');
+    document.getElementById('e-btn-shares').className  = 'toggle-btn' + (type === 'shares'  ? ' active-shares'  : '');
+    document.getElementById('e-btn-options').className = 'toggle-btn' + (type === 'options' ? ' active-options' : '');
   }
 
   async function submitEdit() {
     const ticker = document.getElementById('e-ticker').value.trim().toUpperCase();
     const risk   = document.getElementById('e-risk').value.trim();
     const stop   = document.getElementById('e-stop').value;
+    const close  = document.getElementById('e-close').value;
+    const reason = document.getElementById('e-reason').value;
     const result = document.getElementById('e-result').value.trim();
 
-    if (!ticker || !risk || !stop) {
-      toast('Ticker, risk and stop are required', true); return;
-    }
+    if (!ticker || !risk || !stop) { toast('Ticker, risk and stop are required', true); return; }
     if (!editRow) return;
 
     const btn = document.getElementById('btn-update');
@@ -735,14 +690,13 @@
 
     try {
       const params = new URLSearchParams({
-        action: 'update', row: editRow, ticker, type: editType, risk, stopType: stop, result
+        action: 'update', row: editRow, ticker, type: editType,
+        risk, stopType: stop, closeType: close, reason, result
       });
       const res  = await fetch(`${scriptUrl}?${params}`);
       const data = await res.json();
       if (data.success) {
-        toast('Trade updated!');
-        closeEdit();
-        loadTrades();
+        toast('Trade updated!'); closeEdit(); loadTrades();
       } else {
         toast(data.error || 'Error updating', true);
       }
@@ -753,10 +707,41 @@
     }
   }
 
+  /* ── Delete ── */
+  function showDeleteConfirm() {
+    document.getElementById('btn-delete').style.display      = 'none';
+    document.getElementById('delete-confirm').style.display  = 'block';
+  }
+
+  function hideDeleteConfirm() {
+    document.getElementById('btn-delete').style.display      = 'block';
+    document.getElementById('delete-confirm').style.display  = 'none';
+  }
+
+  async function executeDelete() {
+    if (!editRow) return;
+    const btn = document.getElementById('btn-confirm-del');
+    btn.disabled = true; btn.textContent = 'Deleting…';
+
+    try {
+      const params = new URLSearchParams({ action: 'delete', row: editRow });
+      const res  = await fetch(`${scriptUrl}?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        toast('Trade deleted'); closeEdit(); loadTrades();
+      } else {
+        toast(data.error || 'Error deleting', true); hideDeleteConfirm();
+      }
+    } catch (err) {
+      toast('Connection failed', true); hideDeleteConfirm();
+    } finally {
+      btn.disabled = false; btn.textContent = 'Delete';
+    }
+  }
+
   /* ── Helpers ── */
   function setEmpty(msg) {
-    document.getElementById('trade-list').innerHTML =
-      `<div class="empty-state">${msg}</div>`;
+    document.getElementById('trade-list').innerHTML = `<div class="empty-state">${msg}</div>`;
   }
 
   function toast(msg, isError = false) {
