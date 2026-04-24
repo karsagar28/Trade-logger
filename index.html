@@ -88,6 +88,12 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 8px;
+      margin-bottom: 8px;
+    }
+    .stats-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
       margin-bottom: 16px;
     }
     .stat { background: var(--surface); border-radius: 10px; padding: 12px 8px; text-align: center; }
@@ -280,6 +286,10 @@
   <div class="stat"><div class="stat-val" id="s-trades">—</div><div class="stat-lbl">Trades</div></div>
   <div class="stat"><div class="stat-val" id="s-winrate">—</div><div class="stat-lbl">Win Rate</div></div>
   <div class="stat"><div class="stat-val" id="s-avgr">—</div><div class="stat-lbl">Avg R</div></div>
+</div>
+<div class="stats-2">
+  <div class="stat"><div class="stat-val" id="s-risked">—</div><div class="stat-lbl">R Risked</div></div>
+  <div class="stat"><div class="stat-val" id="s-returned">—</div><div class="stat-lbl">R Returned</div></div>
 </div>
 
 <!-- Log form (collapsible) -->
@@ -622,7 +632,26 @@
       .map(t => parseFloat(String(t.result ?? '')))
       .filter(n => !isNaN(n));
 
+    const risks = trades
+      .map(t => parseFloat(String(t.risk ?? '')))
+      .filter(n => !isNaN(n));
+
     document.getElementById('s-trades').textContent = trades.length || '0';
+
+    // R Risked — sum of all risk values across every trade
+    const totalRisked = risks.reduce((a, b) => a + b, 0);
+    document.getElementById('s-risked').textContent = risks.length ? totalRisked.toFixed(2) + 'R' : '—';
+
+    // R Returned — sum of results for closed trades only
+    const totalReturned = results.reduce((a, b) => a + b, 0);
+    const retEl = document.getElementById('s-returned');
+    if (!results.length) {
+      retEl.textContent  = '—';
+      retEl.style.color  = '';
+    } else {
+      retEl.textContent  = (totalReturned >= 0 ? '+' : '') + totalReturned.toFixed(2) + 'R';
+      retEl.style.color  = totalReturned > 0 ? 'var(--win)' : totalReturned < 0 ? 'var(--loss)' : '';
+    }
 
     if (!results.length) {
       document.getElementById('s-winrate').textContent = '—';
