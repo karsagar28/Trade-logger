@@ -31,7 +31,7 @@ function addTrade(p) {
     const risk      = parseFloat(p.risk);
     const resultNum = (p.result !== undefined && p.result !== '') ? parseFloat(p.result) : null;
     const resultStr = resultNum !== null ? (resultNum >= 0 ? '+' : '') + resultNum + 'R' : '';
-    const date      = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'd MMM yy');
+    const date      = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'd MMMM yy');
 
     getSheet_().appendRow([
       date, p.ticker.toUpperCase(), p.type, risk + 'R', p.stopType,

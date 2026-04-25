@@ -980,7 +980,7 @@
     if (open.length) {
       html += '<div class="group-divider active">● Active</div>';
       html += open.map(renderRow).join('');
-      html += '<div class="group-divider closed">Closed</div>';
+      if (closed.length) html += '<div class="group-divider closed">Closed</div>';
     }
     html += closed.map(renderRow).join('');
     el.innerHTML = html;
