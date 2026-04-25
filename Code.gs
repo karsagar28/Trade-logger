@@ -85,9 +85,12 @@ function getTrades() {
     const last = sh.getLastRow();
     if (last < 2) return json_([]);
     const rows = sh.getRange(2, 1, last - 1, 8).getValues();
+    const tz = Session.getScriptTimeZone();
     return json_(rows.map((r, i) => ({
       row:       i + 2,
-      date:      String(r[0] || ''),
+      date:      r[0] instanceof Date
+                   ? Utilities.formatDate(r[0], tz, 'd MMMM yy')
+                   : String(r[0] || ''),
       ticker:    r[1] || '',
       type:      r[2] || '',
       risk:      r[3] || '',
