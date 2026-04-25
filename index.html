@@ -383,9 +383,26 @@
   }
   .sheet-header {
     display: flex; justify-content: space-between; align-items: baseline;
-    margin-bottom: 18px;
+    margin-bottom: 0;
     padding-bottom: 12px;
     border-bottom: 1.5px solid var(--text);
+  }
+  .sheet-header-right { display: flex; align-items: center; gap: 12px; }
+  .btn-delete-hdr {
+    background: none; border: none;
+    font-family: var(--sans); font-size: 9px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--loss); cursor: pointer; padding: 4px 0;
+  }
+  .delete-confirm-strip {
+    padding: 12px 0;
+    border-bottom: 0.5px solid var(--dim);
+    margin-bottom: 18px;
+  }
+  .delete-confirm-strip p {
+    font-family: var(--serif); font-style: italic;
+    font-size: 13px; color: var(--muted);
+    margin-bottom: 10px; text-align: center;
   }
   .sheet-title {
     font-family: var(--serif);
@@ -637,7 +654,19 @@
   <div class="sheet-handle"></div>
   <div class="sheet-header">
     <span class="sheet-title" id="sheet-title">New Entry</span>
-    <button class="close-btn" onclick="closeSheet()">✕</button>
+    <div class="sheet-header-right">
+      <button class="btn-delete-hdr" id="btn-delete-hdr" style="display:none" onclick="showDeleteConfirm()">Delete</button>
+      <button class="close-btn" onclick="closeSheet()">✕</button>
+    </div>
+  </div>
+
+  <!-- Confirmation strip — sits outside the scroll area, always reachable -->
+  <div class="delete-confirm-strip" id="delete-confirm" style="display:none">
+    <p>Permanently delete this trade?</p>
+    <div class="confirm-row">
+      <button class="btn-cancel" onclick="hideDeleteConfirm()">Cancel</button>
+      <button class="btn-confirm-del" id="btn-confirm-del" onclick="executeDelete()">Delete</button>
+    </div>
   </div>
 
   <div class="form-grid">
@@ -706,17 +735,6 @@
 
     <button class="fab" id="btn-submit" style="position: static; transform: none; width: 100%; max-width: none; margin-top: 8px; box-shadow: none;" onclick="submitForm()">Log Trade</button>
 
-    <!-- Delete (edit mode only) -->
-    <div class="delete-zone" id="delete-zone" style="display:none">
-      <button class="btn-delete" id="btn-delete" onclick="showDeleteConfirm()">Delete Entry</button>
-      <div id="delete-confirm" style="display:none">
-        <p class="delete-confirm-text">Permanently delete this trade?</p>
-        <div class="confirm-row">
-          <button class="btn-cancel" onclick="hideDeleteConfirm()">Cancel</button>
-          <button class="btn-confirm-del" id="btn-confirm-del" onclick="executeDelete()">Delete</button>
-        </div>
-      </div>
-    </div>
   </div>
 </div>
 
@@ -789,7 +807,7 @@
     editRow = null;
     document.getElementById('sheet-title').textContent = 'New Entry';
     document.getElementById('btn-submit').textContent = 'Log Trade';
-    document.getElementById('delete-zone').style.display = 'none';
+    document.getElementById('btn-delete-hdr').style.display = 'none';
 
     ['f-ticker', 'f-risk', 'f-result'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-stop').value   = '';
@@ -808,7 +826,7 @@
 
     document.getElementById('sheet-title').textContent = 'Edit Entry';
     document.getElementById('btn-submit').textContent = 'Update Trade';
-    document.getElementById('delete-zone').style.display = 'block';
+    document.getElementById('btn-delete-hdr').style.display = 'block';
     hideDeleteConfirm();
 
     document.getElementById('f-ticker').value = t.ticker;
@@ -894,12 +912,14 @@
 
   /* ── Delete ── */
   function showDeleteConfirm() {
-    document.getElementById('btn-delete').style.display     = 'none';
-    document.getElementById('delete-confirm').style.display = 'block';
+    document.getElementById('delete-confirm').style.display  = 'block';
+    document.getElementById('btn-delete-hdr').style.display  = 'none';
+    document.querySelector('.sheet-header').style.marginBottom = '0';
   }
   function hideDeleteConfirm() {
-    document.getElementById('btn-delete').style.display     = 'block';
-    document.getElementById('delete-confirm').style.display = 'none';
+    document.getElementById('delete-confirm').style.display  = 'none';
+    document.getElementById('btn-delete-hdr').style.display  = 'block';
+    document.querySelector('.sheet-header').style.marginBottom = '';
   }
   async function executeDelete() {
     if (!editRow) return;
