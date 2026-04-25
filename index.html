@@ -547,6 +547,7 @@
   <div class="masthead-meta">
     <span id="mast-vol">VOL. 12 · WK 17</span>
     <div class="masthead-actions">
+      <button class="icon-btn" id="btn-stats-toggle" onclick="toggleStats()" title="Toggle stats">STATS</button>
       <button class="icon-btn" onclick="loadTrades()" title="Refresh">↻</button>
       <button class="icon-btn" onclick="toggleSetup()" title="Settings">⚙</button>
     </div>
@@ -723,18 +724,36 @@
 
 <script>
   let tradeType     = 'shares';
-  let editRow       = null;        // null = new trade; non-null = editing this sheet row
+  let editRow       = null;
   let currentTrades = [];
   let scriptUrl     = localStorage.getItem('tradeLoggerUrl') || '';
+  let statsVisible  = localStorage.getItem('statsVisible') !== 'false';
+
+  function toggleStats() {
+    statsVisible = !statsVisible;
+    localStorage.setItem('statsVisible', statsVisible);
+    applyStatsVisibility();
+  }
+
+  function applyStatsVisibility() {
+    document.getElementById('hero').style.display = statsVisible ? '' : 'none';
+    document.getElementById('btn-stats-toggle').style.opacity = statsVisible ? '1' : '0.4';
+    if (statsVisible && currentTrades.length) {
+      const rs = currentTrades
+        .filter(t => { const s = String(t.result ?? '').trim(); return s && !isNaN(parseR(t.result)); })
+        .map(t => parseR(t.result));
+      drawHistogram(rs);
+    }
+  }
 
   /* ── Init ── */
   function init() {
-    // Update masthead vol/wk + date relative to today
     const now = new Date();
     const start = new Date(now.getFullYear(), 0, 1);
     const wk = Math.ceil((((now - start) / 86400000) + start.getDay() + 1) / 7);
     const vol = now.getFullYear() - 2014;
     document.getElementById('mast-vol').textContent = `VOL. ${vol} · WK ${wk}`;
+    applyStatsVisibility();
 
     if (!scriptUrl) {
       document.getElementById('setup').style.display = 'block';
