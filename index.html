@@ -108,8 +108,32 @@
     cursor: pointer;
   }
 
+  /* ── Performance toggle header ── */
+  .perf-header {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0;
+    cursor: pointer;
+    border-bottom: 0.5px solid var(--dim);
+    user-select: none;
+    -webkit-user-select: none;
+    margin-bottom: 0;
+  }
+  .perf-header:active { opacity: 0.7; }
+  .perf-title {
+    font-family: var(--sans);
+    font-size: 10px; letter-spacing: 1.4px;
+    color: var(--muted); text-transform: uppercase;
+    font-weight: 600;
+  }
+  .perf-chevron {
+    font-size: 14px; color: var(--muted);
+    transition: transform 0.2s ease;
+    line-height: 1;
+  }
+
   /* ── Hero: Risk vs Return + Histogram ── */
   .hero {
+    padding-top: 14px;
     padding-bottom: 16px;
     border-bottom: 0.5px solid var(--dim);
     margin-bottom: 16px;
@@ -394,16 +418,20 @@
     letter-spacing: 1.5px; text-transform: uppercase;
     color: var(--loss); cursor: pointer; padding: 4px 0;
   }
-  .delete-confirm-strip {
-    padding: 12px 0;
-    border-bottom: 0.5px solid var(--dim);
-    margin-bottom: 18px;
+  .delete-inline { display: flex; align-items: center; gap: 10px; }
+  .btn-inline-cancel {
+    background: none; border: none;
+    font-family: var(--sans); font-size: 9px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted); cursor: pointer; padding: 2px 0;
   }
-  .delete-confirm-strip p {
-    font-family: var(--serif); font-style: italic;
-    font-size: 13px; color: var(--muted);
-    margin-bottom: 10px; text-align: center;
+  .btn-inline-confirm {
+    background: none; border: none;
+    font-family: var(--sans); font-size: 9px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--loss); cursor: pointer; padding: 2px 0;
   }
+  .btn-inline-confirm:disabled { opacity: 0.5; cursor: not-allowed; }
   .sheet-title {
     font-family: var(--serif);
     font-size: 22px; font-weight: 500;
@@ -495,48 +523,6 @@
   .toggle-btn.active.shares::after { background: var(--shares); }
   .toggle-btn.active.options::after { background: var(--options); }
 
-  /* ── Delete zone ── */
-  .delete-zone {
-    margin-top: 8px; padding-top: 16px;
-    border-top: 0.5px solid var(--dim);
-  }
-  .btn-delete {
-    width: 100%; padding: 12px;
-    background: none;
-    border: 1px solid rgba(231,96,96,0.4);
-    color: var(--loss);
-    font-family: var(--sans);
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 1.5px; text-transform: uppercase;
-    cursor: pointer;
-    transition: background 0.15s;
-  }
-  .btn-delete:hover { background: rgba(231,96,96,0.08); }
-  .delete-confirm-text {
-    font-family: var(--serif);
-    font-style: italic;
-    font-size: 14px; color: var(--muted);
-    margin-bottom: 12px; text-align: center;
-  }
-  .confirm-row { display: flex; gap: 10px; }
-  .btn-cancel, .btn-confirm-del {
-    flex: 1; padding: 11px;
-    font-family: var(--sans);
-    font-size: 11px; font-weight: 600;
-    letter-spacing: 1.5px; text-transform: uppercase;
-    cursor: pointer;
-  }
-  .btn-cancel {
-    background: transparent;
-    border: 1px solid var(--soft);
-    color: var(--text);
-  }
-  .btn-confirm-del {
-    background: var(--loss); border: none; color: #fff;
-    font-weight: 700;
-  }
-  .btn-confirm-del:disabled { opacity: 0.5; cursor: not-allowed; }
-
   /* ── Toast ── */
   .toast {
     position: fixed;
@@ -564,7 +550,6 @@
   <div class="masthead-meta">
     <span id="mast-vol">VOL. 12 · WK 17</span>
     <div class="masthead-actions">
-      <button class="icon-btn" id="btn-stats-toggle" onclick="toggleStats()" title="Toggle stats">STATS</button>
       <button class="icon-btn" onclick="loadTrades()" title="Refresh">↻</button>
       <button class="icon-btn" onclick="toggleSetup()" title="Settings">⚙</button>
     </div>
@@ -579,6 +564,12 @@
     <input type="url" id="urlInput" placeholder="https://script.google.com/macros/s/..." />
     <button onclick="saveUrl()">Save</button>
   </div>
+</div>
+
+<!-- Performance section toggle header -->
+<div class="perf-header" id="stats-header" onclick="toggleStats()">
+  <span class="perf-title">Performance</span>
+  <span class="perf-chevron" id="stats-chevron">▾</span>
 </div>
 
 <!-- Hero: Risk vs Return + Histogram -->
@@ -656,16 +647,11 @@
     <span class="sheet-title" id="sheet-title">New Entry</span>
     <div class="sheet-header-right">
       <button class="btn-delete-hdr" id="btn-delete-hdr" style="display:none" onclick="showDeleteConfirm()">Delete</button>
+      <span class="delete-inline" id="delete-inline" style="display:none">
+        <button class="btn-inline-cancel" onclick="hideDeleteConfirm()">Cancel</button>
+        <button class="btn-inline-confirm" id="btn-inline-confirm" onclick="executeDelete()">Confirm</button>
+      </span>
       <button class="close-btn" onclick="closeSheet()">✕</button>
-    </div>
-  </div>
-
-  <!-- Confirmation strip — sits outside the scroll area, always reachable -->
-  <div class="delete-confirm-strip" id="delete-confirm" style="display:none">
-    <p>Permanently delete this trade?</p>
-    <div class="confirm-row">
-      <button class="btn-cancel" onclick="hideDeleteConfirm()">Cancel</button>
-      <button class="btn-confirm-del" id="btn-confirm-del" onclick="executeDelete()">Delete</button>
     </div>
   </div>
 
@@ -755,7 +741,8 @@
 
   function applyStatsVisibility() {
     document.getElementById('hero').style.display = statsVisible ? '' : 'none';
-    document.getElementById('btn-stats-toggle').style.opacity = statsVisible ? '1' : '0.4';
+    const chevron = document.getElementById('stats-chevron');
+    if (chevron) chevron.style.transform = statsVisible ? '' : 'rotate(-90deg)';
     if (statsVisible && currentTrades.length) {
       const rs = currentTrades
         .filter(t => { const s = String(t.result ?? '').trim(); return s && !isNaN(parseR(t.result)); })
@@ -912,19 +899,17 @@
 
   /* ── Delete ── */
   function showDeleteConfirm() {
-    document.getElementById('delete-confirm').style.display  = 'block';
     document.getElementById('btn-delete-hdr').style.display  = 'none';
-    document.querySelector('.sheet-header').style.marginBottom = '0';
+    document.getElementById('delete-inline').style.display   = 'flex';
   }
   function hideDeleteConfirm() {
-    document.getElementById('delete-confirm').style.display  = 'none';
+    document.getElementById('delete-inline').style.display   = 'none';
     document.getElementById('btn-delete-hdr').style.display  = 'block';
-    document.querySelector('.sheet-header').style.marginBottom = '';
   }
   async function executeDelete() {
-    if (!editRow) return;
-    const btn = document.getElementById('btn-confirm-del');
-    btn.disabled = true; btn.textContent = 'Deleting…';
+    if (editRow === null) { toast('No trade selected', true); return; }
+    const btn = document.getElementById('btn-inline-confirm');
+    btn.disabled = true; btn.textContent = '…';
     try {
       const params = new URLSearchParams({ action: 'delete', row: editRow });
       const res  = await fetch(`${scriptUrl}?${params}`);
@@ -941,7 +926,7 @@
       toast('Connection failed', true);
       hideDeleteConfirm();
     } finally {
-      btn.disabled = false; btn.textContent = 'Delete';
+      btn.disabled = false; btn.textContent = 'Confirm';
     }
   }
 
