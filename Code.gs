@@ -101,7 +101,7 @@ function getTrades() {
                    : String(r[0] || ''),
       ticker:    r[1] || '',
       type:      r[2] || '',
-      risk:      r[3] || '',
+      risk:      normalizeRisk_(r[3]),
       stopType:  r[4] || '',
       result:    r[5] || '',
       closeType: r[6] || '',
@@ -120,6 +120,11 @@ function normalizeCompliant_(value) {
   return (v === 'no' || v === 'false' || v === 'non-compliant' || v === 'noncompliant')
     ? 'No'
     : 'Yes';
+}
+
+function normalizeRisk_(value) {
+  const n = parseFloat(String(value || '').replace(/R$/i, ''));
+  return isNaN(n) ? '1R' : n + 'R';
 }
 
 function formatR_(value) {

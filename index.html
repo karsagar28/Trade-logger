@@ -1235,7 +1235,7 @@
           </div>
           <div class="trade-right">
             ${right}
-            <div class="trade-risk-lbl">${escapeHtml(String(t.risk || ''))} risk</div>
+            <div class="trade-risk-lbl">${escapeHtml(displayRisk(t.risk))} risk</div>
             ${analysisBtn}
           </div>
         </div>`;
@@ -1257,6 +1257,11 @@
 
   function isTradeCompliant(t) {
     return String(t.compliant || 'Yes').toLowerCase() !== 'no';
+  }
+
+  function displayRisk(value) {
+    const n = parseR(value);
+    return isNaN(n) ? '1R' : `${n}R`;
   }
 
   /* ── Hero: risk vs return + R histogram ── */
