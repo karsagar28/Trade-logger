@@ -14,29 +14,33 @@ function getSheet_() {
   let sh = ss.getSheetByName('Trades');
   if (!sh) {
     sh = ss.insertSheet('Trades');
-    sh.appendRow(['Date','Ticker','Type','Risk','Stop Type','Result','Close Type','Reason','Mood','Notes']);
+    sh.appendRow(['Date','Ticker','Type','Risk','Stop Type','Result','Close Type','Reason','Compliant','Analysis','Alternate Result']);
     sh.setFrozenRows(1);
-    sh.getRange(1, 1, 1, 10).setFontWeight('bold');
+    sh.getRange(1, 1, 1, 11).setFontWeight('bold');
   } else {
     const lastCol = sh.getLastColumn();
     if (lastCol < 7)  sh.getRange(1, 7).setValue('Close Type').setFontWeight('bold');
     if (lastCol < 8)  sh.getRange(1, 8).setValue('Reason').setFontWeight('bold');
-    if (lastCol < 9)  sh.getRange(1, 9).setValue('Mood').setFontWeight('bold');
-    if (lastCol < 10) sh.getRange(1, 10).setValue('Notes').setFontWeight('bold');
+    if (lastCol < 9)  sh.getRange(1, 9).setValue('Compliant').setFontWeight('bold');
+    if (lastCol < 10) sh.getRange(1, 10).setValue('Analysis').setFontWeight('bold');
+    if (lastCol < 11) sh.getRange(1, 11).setValue('Alternate Result').setFontWeight('bold');
+    sh.getRange(1, 9).setValue('Compliant').setFontWeight('bold');
+    sh.getRange(1, 10).setValue('Analysis').setFontWeight('bold');
+    sh.getRange(1, 11).setValue('Alternate Result').setFontWeight('bold');
   }
   return sh;
 }
 
 function addTrade(p) {
   try {
-    const risk      = parseFloat(p.risk);
+    const risk      = 1;
     const resultNum = (p.result !== undefined && p.result !== '') ? parseFloat(p.result) : null;
     const resultStr = resultNum !== null ? (resultNum >= 0 ? '+' : '') + resultNum + 'R' : '';
     const date      = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'd MMMM yy');
 
     getSheet_().appendRow([
       date, p.ticker.toUpperCase(), p.type, risk + 'R', p.stopType,
-      resultStr, p.closeType || '', p.reason || '', p.mood || '', p.notes || ''
+      resultStr, p.closeType || '', p.reason || '', normalizeCompliant_(p.compliant), p.analysis || '', formatR_(p.alternateResult)
     ]);
     return json_({ success: true });
   } catch (err) {
@@ -50,7 +54,7 @@ function updateTrade(p) {
     const row = parseInt(p.row);
     if (isNaN(row) || row < 2) return json_({ error: 'Invalid row' });
 
-    const risk      = parseFloat(p.risk);
+    const risk      = 1;
     const resultNum = (p.result !== undefined && p.result !== '') ? parseFloat(p.result) : null;
     const resultStr = resultNum !== null ? (resultNum >= 0 ? '+' : '') + resultNum + 'R' : '';
 
@@ -61,8 +65,9 @@ function updateTrade(p) {
     sh.getRange(row, 6).setValue(resultStr);
     sh.getRange(row, 7).setValue(p.closeType || '');
     sh.getRange(row, 8).setValue(p.reason    || '');
-    sh.getRange(row, 9).setValue(p.mood      || '');
-    sh.getRange(row, 10).setValue(p.notes    || '');
+    sh.getRange(row, 9).setValue(normalizeCompliant_(p.compliant));
+    sh.getRange(row, 10).setValue(p.analysis || '');
+    sh.getRange(row, 11).setValue(formatR_(p.alternateResult));
 
     return json_({ success: true });
   } catch (err) {
@@ -87,7 +92,7 @@ function getTrades() {
     const sh   = getSheet_();
     const last = sh.getLastRow();
     if (last < 2) return json_([]);
-    const rows = sh.getRange(2, 1, last - 1, 10).getValues();
+    const rows = sh.getRange(2, 1, last - 1, 11).getValues();
     const tz = Session.getScriptTimeZone();
     return json_(rows.map((r, i) => ({
       row:       i + 2,
@@ -101,12 +106,27 @@ function getTrades() {
       result:    r[5] || '',
       closeType: r[6] || '',
       reason:    r[7] || '',
-      mood:      r[8] || '',
-      notes:     r[9] || ''
+      compliant: normalizeCompliant_(r[8]),
+      analysis:  r[9] || '',
+      alternateResult: r[10] || ''
     })));
   } catch (err) {
     return json_({ error: err.message });
   }
+}
+
+function normalizeCompliant_(value) {
+  const v = String(value || '').toLowerCase();
+  return (v === 'no' || v === 'false' || v === 'non-compliant' || v === 'noncompliant')
+    ? 'No'
+    : 'Yes';
+}
+
+function formatR_(value) {
+  if (value === undefined || value === null || value === '') return '';
+  const n = parseFloat(value);
+  if (isNaN(n)) return '';
+  return (n >= 0 ? '+' : '') + n + 'R';
 }
 
 function json_(data) {

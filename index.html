@@ -544,41 +544,44 @@
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .toast.error { background: var(--loss); color: #fff; }
 
-  /* ── Mood section (in form) ── */
-  .mood-section {
+  /* ── Rules section (in form) ── */
+  .rules-section {
     border-top: 0.5px solid var(--dim);
     padding-top: 14px;
   }
-  .mood-header {
+  .rules-header {
     display: flex; justify-content: space-between; align-items: center;
     cursor: pointer;
     user-select: none; -webkit-user-select: none;
   }
-  .mood-header:active { opacity: 0.7; }
-  .mood-chevron {
+  .rules-header:active { opacity: 0.7; }
+  .rules-chevron {
     font-size: 13px; color: var(--muted);
     transition: transform 0.2s ease; line-height: 1;
   }
-  .mood-body {
+  .rules-body {
     display: flex; flex-direction: column; gap: 12px;
     padding-top: 12px;
   }
-  .mood-pills { display: flex; gap: 8px; flex-wrap: wrap; }
-  .mood-pill {
-    background: var(--surface);
-    border: 1px solid var(--soft);
-    border-radius: 4px;
-    font-size: 22px;
-    width: 44px; height: 44px;
-    display: flex; align-items: center; justify-content: center;
+  .compliance-check {
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid var(--muted);
+    padding: 10px 0;
     cursor: pointer;
-    transition: border-color 0.15s ease, background 0.15s ease;
+    user-select: none; -webkit-user-select: none;
   }
-  .mood-pill.selected {
-    border-color: var(--text);
-    background: var(--surface2);
+  .compliance-check input {
+    width: 16px; height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
   }
-  .mood-textarea {
+  .compliance-check span {
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 11px; font-weight: 600;
+    letter-spacing: 1.4px; text-transform: uppercase;
+  }
+  .analysis-textarea {
     width: 100%; background: transparent;
     border: none; border-bottom: 1px solid var(--muted);
     color: var(--text); padding: 8px 0;
@@ -586,21 +589,33 @@
     outline: none; border-radius: 0;
     resize: none; line-height: 1.5;
   }
-  .mood-textarea:focus { border-bottom-color: var(--accent); }
-  .mood-textarea::placeholder { color: var(--dim); }
+  .analysis-textarea:focus { border-bottom-color: var(--accent); }
+  .analysis-textarea::placeholder { color: var(--dim); }
 
-  /* ── Mood indicator on trade row ── */
-  .mood-row-btn {
-    background: none; border: none;
-    font-size: 14px; line-height: 1;
-    cursor: pointer; padding: 0;
-    display: block; margin-top: 5px;
-    opacity: 0.75;
+  /* ── Rules indicator on trade row ── */
+  .analysis-row-btn {
+    background: var(--surface);
+    border: 1px solid var(--soft);
+    border-radius: 4px;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    line-height: 1;
+    text-transform: uppercase;
+    padding: 5px 6px;
+    cursor: pointer;
+    display: block; margin-top: 6px;
   }
-  .mood-row-btn:active { opacity: 1; }
+  .analysis-row-btn.noncompliant {
+    border-color: rgba(231, 96, 96, 0.65);
+    color: var(--loss);
+  }
+  .analysis-row-btn:active { background: var(--surface2); }
 
-  /* ── Mood popover ── */
-  .mood-popover {
+  /* ── Analysis popover ── */
+  .analysis-popover {
     position: fixed;
     background: var(--surface);
     border: 0.5px solid var(--soft);
@@ -609,18 +624,24 @@
     z-index: 400;
     box-shadow: 0 4px 20px rgba(0,0,0,0.45);
   }
-  .mood-pop-emoji {
-    font-size: 24px; line-height: 1;
-    margin-bottom: 6px;
+  .analysis-popover.hover-preview {
+    pointer-events: none;
   }
-  .mood-pop-text {
+  .analysis-pop-label {
+    font-family: var(--sans);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .analysis-pop-text {
     font-family: var(--serif);
     font-size: 13px; line-height: 1.5;
     color: var(--muted);
     margin-bottom: 10px;
     white-space: pre-wrap; word-break: break-word;
   }
-  .mood-pop-edit {
+  .analysis-pop-edit {
     background: none; border: none;
     font-family: var(--sans); font-size: 9px; font-weight: 700;
     letter-spacing: 1.5px; text-transform: uppercase;
@@ -756,25 +777,16 @@
       </div>
     </div>
 
-    <div class="row-2">
-      <div>
-        <div class="field-label">Risk</div>
-        <div class="r-wrap">
-          <input type="number" id="f-risk" class="input" placeholder="1" step="0.25" min="0.25" />
-          <span class="r-suffix">R</span>
-        </div>
-      </div>
-      <div>
-        <div class="field-label">Stop type</div>
-        <select id="f-stop">
-          <option value="">Select…</option>
-          <option value="Mental Stop">Mental Stop</option>
-          <option value="Low of Day">Low of Day</option>
-          <option value="Pivot Low">Pivot Low</option>
-          <option value="Break Even">Break Even</option>
-          <option value="Manual Stop">Manual Stop</option>
-        </select>
-      </div>
+    <div>
+      <div class="field-label">Stop type</div>
+      <select id="f-stop">
+        <option value="">Select…</option>
+        <option value="Mental Stop">Mental Stop</option>
+        <option value="Low of Day">Low of Day</option>
+        <option value="Pivot Low">Pivot Low</option>
+        <option value="Break Even">Break Even</option>
+        <option value="Manual Stop">Manual Stop</option>
+      </select>
     </div>
 
     <div>
@@ -804,21 +816,25 @@
       </div>
     </div>
 
-    <div class="mood-section">
-      <div class="mood-header" onclick="toggleMoodSection()">
-        <span class="field-label" style="margin:0">Mood &amp; Notes <span class="opt">— optional</span></span>
-        <span class="mood-chevron" id="mood-chevron" style="transform:rotate(-90deg)">▾</span>
+    <div class="rules-section">
+      <div class="rules-header" onclick="toggleRulesSection()">
+        <span class="field-label" style="margin:0">Rules &amp; Analysis</span>
+        <span class="rules-chevron" id="rules-chevron" style="transform:rotate(-90deg)">▾</span>
       </div>
-      <div class="mood-body" id="mood-body" style="display:none">
-        <div class="mood-pills" id="mood-pills">
-          <button class="mood-pill" data-mood="😎" onclick="selectMood('😎')">😎</button>
-          <button class="mood-pill" data-mood="🙂" onclick="selectMood('🙂')">🙂</button>
-          <button class="mood-pill" data-mood="😐" onclick="selectMood('😐')">😐</button>
-          <button class="mood-pill" data-mood="😤" onclick="selectMood('😤')">😤</button>
-          <button class="mood-pill" data-mood="😰" onclick="selectMood('😰')">😰</button>
-          <button class="mood-pill" data-mood="🤔" onclick="selectMood('🤔')">🤔</button>
+      <div class="rules-body" id="rules-body" style="display:none">
+        <label class="compliance-check">
+          <input type="checkbox" id="f-compliant" checked onchange="setCompliance(this.checked)" />
+          <span>Compliant trade</span>
+        </label>
+        <div id="alternate-result-row" style="display:none">
+          <div class="field-label">Alternate result <span class="opt">— if rules were followed</span></div>
+          <div class="r-wrap">
+            <input type="number" id="f-alternate-result" class="input" placeholder="e.g. 1.5 or -0.5" step="0.25" />
+            <span class="r-suffix">R</span>
+          </div>
         </div>
-        <textarea id="f-notes" class="mood-textarea" placeholder="Context, observations…" rows="3"></textarea>
+        <div class="field-label" id="analysis-label">Comment <span class="opt">— optional</span></div>
+        <textarea id="f-analysis" class="analysis-textarea" placeholder="Context, observations…" rows="3"></textarea>
       </div>
     </div>
 
@@ -829,11 +845,11 @@
 
 <div class="toast" id="toast"></div>
 
-<!-- Mood popover -->
-<div class="mood-popover" id="mood-popover" style="display:none" onclick="event.stopPropagation()">
-  <div class="mood-pop-emoji" id="mood-pop-emoji"></div>
-  <div class="mood-pop-text" id="mood-pop-text"></div>
-  <button class="mood-pop-edit" id="mood-pop-edit">Edit entry</button>
+<!-- Analysis popover -->
+<div class="analysis-popover" id="analysis-popover" style="display:none" onclick="event.stopPropagation()">
+  <div class="analysis-pop-label" id="analysis-pop-label"></div>
+  <div class="analysis-pop-text" id="analysis-pop-text"></div>
+  <button class="analysis-pop-edit" id="analysis-pop-edit">Edit entry</button>
 </div>
 
 <script>
@@ -842,8 +858,8 @@
   let currentTrades   = [];
   let scriptUrl       = localStorage.getItem('tradeLoggerUrl') || '';
   let statsVisible    = localStorage.getItem('statsVisible') !== 'false';
-  let moodSectionOpen = false;
-  let selectedMood    = '';
+  let rulesSectionOpen = false;
+  let isCompliant      = true;
 
   function toggleStats() {
     statsVisible = !statsVisible;
@@ -863,60 +879,99 @@
     }
   }
 
-  /* ── Mood section ── */
-  function toggleMoodSection() {
-    moodSectionOpen = !moodSectionOpen;
-    document.getElementById('mood-body').style.display = moodSectionOpen ? '' : 'none';
-    document.getElementById('mood-chevron').style.transform = moodSectionOpen ? '' : 'rotate(-90deg)';
+  /* ── Rules section ── */
+  function toggleRulesSection() {
+    rulesSectionOpen = !rulesSectionOpen;
+    document.getElementById('rules-body').style.display = rulesSectionOpen ? '' : 'none';
+    document.getElementById('rules-chevron').style.transform = rulesSectionOpen ? '' : 'rotate(-90deg)';
   }
 
-  function selectMood(emoji) {
-    selectedMood = selectedMood === emoji ? '' : emoji;
-    document.querySelectorAll('.mood-pill').forEach(btn => {
-      btn.classList.toggle('selected', btn.dataset.mood === selectedMood);
-    });
+  function setCompliance(compliant) {
+    isCompliant = compliant;
+    document.getElementById('f-compliant').checked = isCompliant;
+    document.getElementById('analysis-label').innerHTML = isCompliant
+      ? 'Comment <span class="opt">— optional</span>'
+      : 'Counterfactual analysis';
+    document.getElementById('alternate-result-row').style.display = isCompliant ? 'none' : '';
+    if (isCompliant) document.getElementById('f-alternate-result').value = '';
+    document.getElementById('f-analysis').placeholder = isCompliant
+      ? 'Context, observations…'
+      : 'Counterfactual: what would have happened if you followed your rules?';
   }
 
-  function showMoodPopover(index, event) {
+  function showAnalysisPopover(index, event) {
     event.stopPropagation();
     const t = currentTrades[index];
     if (!t) return;
 
-    const hasMood  = t.mood  && t.mood.trim();
-    const hasNotes = t.notes && t.notes.trim();
-
-    const emojiEl = document.getElementById('mood-pop-emoji');
-    const textEl  = document.getElementById('mood-pop-text');
-    emojiEl.textContent    = hasMood  ? t.mood  : '';
-    emojiEl.style.display  = hasMood  ? ''      : 'none';
-    textEl.textContent     = hasNotes ? t.notes : '';
-    textEl.style.display   = hasNotes ? ''      : 'none';
-
-    document.getElementById('mood-pop-edit').onclick = (e) => {
-      e.stopPropagation();
-      hideMoodPopover();
-      openEdit(index);
-    };
-
-    const pop  = document.getElementById('mood-popover');
+    renderAnalysisPopoverContent(t);
+    const pop  = document.getElementById('analysis-popover');
+    pop.classList.remove('hover-preview');
     pop.style.display = 'block';
 
     const btn  = event.currentTarget;
-    const rect = btn.getBoundingClientRect();
+    positionAnalysisPopover(pop, btn.getBoundingClientRect());
+
+    document.getElementById('analysis-pop-edit').onclick = (e) => {
+      e.stopPropagation();
+      hideAnalysisPopover();
+      openEdit(index);
+    };
+  }
+
+  function showTradeHoverPopover(index, event) {
+    const t = currentTrades[index];
+    if (!t || !hasAnalysisPreview(t)) return;
+
+    renderAnalysisPopoverContent(t);
+    const pop = document.getElementById('analysis-popover');
+    pop.classList.add('hover-preview');
+    pop.style.display = 'block';
+    document.getElementById('analysis-pop-edit').style.display = 'none';
+    positionAnalysisPopover(pop, event.currentTarget.getBoundingClientRect(), true);
+  }
+
+  function hasAnalysisPreview(t) {
+    return !isTradeCompliant(t)
+      || (t.analysis && t.analysis.trim())
+      || String(t.alternateResult || '').trim();
+  }
+
+  function renderAnalysisPopoverContent(t) {
+    const compliant = isTradeCompliant(t);
+    const hasAnalysis = t.analysis && t.analysis.trim();
+
+    const labelEl = document.getElementById('analysis-pop-label');
+    const textEl  = document.getElementById('analysis-pop-text');
+    const alternate = parseR(t.alternateResult);
+    const alternateText = !compliant && !isNaN(alternate)
+      ? `Alternate result: ${alternate >= 0 ? '+' : ''}${alternate}R\n\n`
+      : '';
+    labelEl.textContent = compliant ? 'Rule compliant' : 'Counterfactual analysis';
+    labelEl.style.color = compliant ? 'var(--accent)' : 'var(--loss)';
+    textEl.textContent  = alternateText + (hasAnalysis ? t.analysis : 'No analysis added.');
+    document.getElementById('analysis-pop-edit').style.display = '';
+  }
+
+  function positionAnalysisPopover(pop, rect, preferRight = false) {
     const popW = pop.offsetWidth;
     const popH = pop.offsetHeight;
 
-    let left = rect.right - popW;
+    let left = preferRight ? rect.right + 10 : rect.right - popW;
+    if (left + popW > window.innerWidth - 8) left = rect.left - popW - 10;
     if (left < 8) left = 8;
-    let top = rect.top - popH - 8;
-    if (top < 8) top = rect.bottom + 8;
+    let top = preferRight ? rect.top : rect.top - popH - 8;
+    if (top < 8) top = 8;
+    if (top + popH > window.innerHeight - 8) top = window.innerHeight - popH - 8;
 
     pop.style.left = left + 'px';
     pop.style.top  = top  + 'px';
   }
 
-  function hideMoodPopover() {
-    document.getElementById('mood-popover').style.display = 'none';
+  function hideAnalysisPopover() {
+    document.getElementById('analysis-popover').style.display = 'none';
+    document.getElementById('analysis-popover').classList.remove('hover-preview');
+    document.getElementById('analysis-pop-edit').style.display = '';
   }
 
   /* ── Init ── */
@@ -964,16 +1019,15 @@
     document.getElementById('btn-submit').textContent = 'Log Trade';
     document.getElementById('btn-delete-hdr').style.display = 'none';
 
-    ['f-ticker', 'f-risk', 'f-result'].forEach(id => document.getElementById(id).value = '');
+    ['f-ticker', 'f-result', 'f-alternate-result'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-stop').value   = '';
     document.getElementById('f-close').value  = '';
     document.getElementById('f-reason').value = '';
     document.getElementById('f-reason-row').style.display = 'none';
-    document.getElementById('f-notes').value  = '';
+    document.getElementById('f-analysis').value  = '';
     setType('shares');
-    selectedMood = '';
-    document.querySelectorAll('.mood-pill').forEach(b => b.classList.remove('selected'));
-    if (moodSectionOpen) toggleMoodSection();
+    setCompliance(true);
+    if (rulesSectionOpen) toggleRulesSection();
 
     showSheet();
   }
@@ -990,7 +1044,6 @@
 
     document.getElementById('f-ticker').value = t.ticker;
     setType(t.type || 'shares');
-    document.getElementById('f-risk').value   = parseFloat(t.risk) || '';
     document.getElementById('f-stop').value   = t.stopType  || '';
     document.getElementById('f-close').value  = t.closeType || '';
     onCloseTypeChange();
@@ -998,12 +1051,13 @@
     const r = parseFloat(String(t.result ?? ''));
     document.getElementById('f-result').value = isNaN(r) ? '' : r;
 
-    selectedMood = t.mood || '';
-    document.querySelectorAll('.mood-pill').forEach(b => b.classList.toggle('selected', b.dataset.mood === selectedMood));
-    document.getElementById('f-notes').value = t.notes || '';
-    const hasMoodData = selectedMood || (t.notes && t.notes.trim());
-    if (hasMoodData && !moodSectionOpen) toggleMoodSection();
-    else if (!hasMoodData && moodSectionOpen) toggleMoodSection();
+    setCompliance(isTradeCompliant(t));
+    document.getElementById('f-analysis').value = t.analysis || '';
+    const alternate = parseFloat(String(t.alternateResult ?? ''));
+    document.getElementById('f-alternate-result').value = isNaN(alternate) ? '' : alternate;
+    const hasRulesData = !isCompliant || (t.analysis && t.analysis.trim());
+    if (hasRulesData && !rulesSectionOpen) toggleRulesSection();
+    else if (!hasRulesData && rulesSectionOpen) toggleRulesSection();
 
     showSheet();
   }
@@ -1034,13 +1088,13 @@
   /* ── Submit (add OR update depending on editRow) ── */
   async function submitForm() {
     const ticker = document.getElementById('f-ticker').value.trim().toUpperCase();
-    const risk   = document.getElementById('f-risk').value.trim();
     const stop   = document.getElementById('f-stop').value;
     const close  = document.getElementById('f-close').value;
     const reason = document.getElementById('f-reason').value;
     const result = document.getElementById('f-result').value.trim();
+    const alternateResult = document.getElementById('f-alternate-result').value.trim();
 
-    if (!ticker || !risk || !stop) { toast('Ticker, risk and stop are required', true); return; }
+    if (!ticker || !stop) { toast('Ticker and stop are required', true); return; }
     if (!scriptUrl) { toast('Set your Apps Script URL first', true); toggleSetup(); return; }
 
     const btn = document.getElementById('btn-submit');
@@ -1048,16 +1102,17 @@
     btn.disabled = true; btn.textContent = isEdit ? 'Updating…' : 'Logging…';
 
     try {
-      const notes = document.getElementById('f-notes').value.trim();
+      const analysis = document.getElementById('f-analysis').value.trim();
       const params = new URLSearchParams({
         action:    isEdit ? 'update' : 'add',
-        ticker, type: tradeType, risk,
+        ticker, type: tradeType,
         stopType:  stop,
         closeType: close,
         reason,
         result,
-        mood:  selectedMood,
-        notes
+        compliant: isCompliant ? 'Yes' : 'No',
+        alternateResult: isCompliant ? '' : alternateResult,
+        analysis
       });
       if (isEdit) params.set('row', String(editRow));
 
@@ -1166,14 +1221,11 @@
         ? '<div class="marker-dot"></div>'
         : '<div class="marker-bar"></div>';
 
-      const hasMood  = t.mood  && t.mood.trim();
-      const hasNotes = t.notes && t.notes.trim();
-      const moodBtn  = (hasMood || hasNotes)
-        ? `<button class="mood-row-btn" onclick="showMoodPopover(${i}, event)">${hasMood ? escapeHtml(t.mood) : '✏︎'}</button>`
-        : '';
+      const compliant = isTradeCompliant(t);
+      const analysisBtn = `<button class="analysis-row-btn ${compliant ? '' : 'noncompliant'}" onclick="showAnalysisPopover(${i}, event)">${compliant ? 'OK' : 'Rules'}</button>`;
 
       return `
-        <div class="trade" onclick="openEdit(${i})">
+        <div class="trade" onclick="openEdit(${i})" onmouseenter="showTradeHoverPopover(${i}, event)" onmouseleave="hideAnalysisPopover()">
           <div class="trade-marker">${marker}</div>
           <div class="trade-main">
             <div>
@@ -1184,7 +1236,7 @@
           <div class="trade-right">
             ${right}
             <div class="trade-risk-lbl">${escapeHtml(String(t.risk || ''))} risk</div>
-            ${moodBtn}
+            ${analysisBtn}
           </div>
         </div>`;
     };
@@ -1201,6 +1253,10 @@
 
   function escapeHtml(s) {
     return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  function isTradeCompliant(t) {
+    return String(t.compliant || 'Yes').toLowerCase() !== 'no';
   }
 
   /* ── Hero: risk vs return + R histogram ── */
@@ -1406,7 +1462,7 @@
     }, 120);
   });
 
-  document.addEventListener('click', () => hideMoodPopover());
+  document.addEventListener('click', () => hideAnalysisPopover());
 
   init();
 </script>
