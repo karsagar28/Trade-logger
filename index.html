@@ -414,6 +414,11 @@
     border-bottom: 1.5px solid var(--text);
   }
   .sheet-header-right { display: flex; align-items: center; gap: 12px; }
+  .danger-zone {
+    border-top: 0.5px solid var(--dim);
+    margin-top: 2px;
+    padding-top: 14px;
+  }
   .btn-delete-hdr {
     background: none; border: none;
     font-family: var(--sans); font-size: 9px; font-weight: 700;
@@ -752,11 +757,6 @@
   <div class="sheet-header">
     <span class="sheet-title" id="sheet-title">New Entry</span>
     <div class="sheet-header-right">
-      <button class="btn-delete-hdr" id="btn-delete-hdr" style="display:none" onclick="showDeleteConfirm()">Delete</button>
-      <span class="delete-inline" id="delete-inline" style="display:none">
-        <button class="btn-inline-cancel" onclick="hideDeleteConfirm()">Cancel</button>
-        <button class="btn-inline-confirm" id="btn-inline-confirm" onclick="executeDelete()">Confirm</button>
-      </span>
       <button class="close-btn" onclick="closeSheet()">✕</button>
     </div>
   </div>
@@ -839,6 +839,14 @@
     </div>
 
     <button class="fab" id="btn-submit" style="position: static; transform: none; width: 100%; max-width: none; margin-top: 8px; box-shadow: none;" onclick="submitForm()">Log Trade</button>
+
+    <div class="danger-zone" id="danger-zone" style="display:none">
+      <button class="btn-delete-hdr" id="btn-delete-hdr" onclick="showDeleteConfirm()">Delete entry</button>
+      <span class="delete-inline" id="delete-inline" style="display:none">
+        <button class="btn-inline-cancel" onclick="hideDeleteConfirm()">Cancel</button>
+        <button class="btn-inline-confirm" id="btn-inline-confirm" onclick="executeDelete()">Confirm delete</button>
+      </span>
+    </div>
 
   </div>
 </div>
@@ -1017,7 +1025,8 @@
     editRow = null;
     document.getElementById('sheet-title').textContent = 'New Entry';
     document.getElementById('btn-submit').textContent = 'Log Trade';
-    document.getElementById('btn-delete-hdr').style.display = 'none';
+    document.getElementById('danger-zone').style.display = 'none';
+    hideDeleteConfirm();
 
     ['f-ticker', 'f-result', 'f-alternate-result'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-stop').value   = '';
@@ -1039,7 +1048,7 @@
 
     document.getElementById('sheet-title').textContent = 'Edit Entry';
     document.getElementById('btn-submit').textContent = 'Update Trade';
-    document.getElementById('btn-delete-hdr').style.display = 'block';
+    document.getElementById('danger-zone').style.display = 'block';
     hideDeleteConfirm();
 
     document.getElementById('f-ticker').value = t.ticker;
