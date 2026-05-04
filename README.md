@@ -14,6 +14,7 @@ Each trade records:
 - Date
 - Ticker
 - Type: shares or options
+- Strategy type: Breakout, Pullback-generic, Pullback-30min, or Other
 - Risk: always saved as `1R`
 - Stop type
 - Result in R
@@ -51,7 +52,7 @@ Updating the existing deployment keeps the same web app URL. Creating a new depl
 1. Open the deployed web app URL or the local `index.html` file.
 2. If prompted, paste the Apps Script deployment URL into settings.
 3. Click `+` to add a trade.
-4. Enter ticker, type, stop type, optional result, and compliance details.
+4. Enter ticker, type, strategy type, stop type, optional result, and compliance details.
 5. Use `Compliant trade` for rule-following trades.
 6. Uncheck `Compliant trade` for rule breaks, then enter the alternate result and counterfactual analysis.
 7. Hover over trade rows to quickly preview saved comments or counterfactual analysis.
@@ -69,4 +70,4 @@ Google Apps Script does not automatically pull changes from this repository, so 
 
 ## Data Notes
 
-The app stores data in a sheet named `Trades`. If it does not exist, the backend creates it and adds the expected headers. Existing sheets are updated with newer header names such as `Compliant`, `Analysis`, and `Alternate Result`.
+The app stores data in a sheet named `Trades`. If it does not exist, the backend creates it and adds the expected headers. Existing sheets are updated with newer header names such as `Compliant`, `Analysis`, `Alternate Result`, and `Strategy Type`.

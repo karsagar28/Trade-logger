@@ -778,6 +778,17 @@
     </div>
 
     <div>
+      <div class="field-label">Strategy type</div>
+      <select id="f-strategy">
+        <option value="">Select…</option>
+        <option value="Breakout">Breakout</option>
+        <option value="Pullback-generic">Pullback-generic</option>
+        <option value="Pullback-30min">Pullback-30min</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div>
       <div class="field-label">Stop type</div>
       <select id="f-stop">
         <option value="">Select…</option>
@@ -1030,6 +1041,7 @@
 
     ['f-ticker', 'f-result', 'f-alternate-result'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-stop').value   = '';
+    document.getElementById('f-strategy').value = '';
     document.getElementById('f-close').value  = '';
     document.getElementById('f-reason').value = '';
     document.getElementById('f-reason-row').style.display = 'none';
@@ -1053,6 +1065,7 @@
 
     document.getElementById('f-ticker').value = t.ticker;
     setType(t.type || 'shares');
+    document.getElementById('f-strategy').value = t.strategyType || '';
     document.getElementById('f-stop').value   = t.stopType  || '';
     document.getElementById('f-close').value  = t.closeType || '';
     onCloseTypeChange();
@@ -1097,13 +1110,14 @@
   /* ── Submit (add OR update depending on editRow) ── */
   async function submitForm() {
     const ticker = document.getElementById('f-ticker').value.trim().toUpperCase();
+    const strategyType = document.getElementById('f-strategy').value;
     const stop   = document.getElementById('f-stop').value;
     const close  = document.getElementById('f-close').value;
     const reason = document.getElementById('f-reason').value;
     const result = document.getElementById('f-result').value.trim();
     const alternateResult = document.getElementById('f-alternate-result').value.trim();
 
-    if (!ticker || !stop) { toast('Ticker and stop are required', true); return; }
+    if (!ticker || !strategyType || !stop) { toast('Ticker, strategy, and stop are required', true); return; }
     if (!scriptUrl) { toast('Set your Apps Script URL first', true); toggleSetup(); return; }
 
     const btn = document.getElementById('btn-submit');
@@ -1115,6 +1129,7 @@
       const params = new URLSearchParams({
         action:    isEdit ? 'update' : 'add',
         ticker, type: tradeType,
+        strategyType,
         stopType:  stop,
         closeType: close,
         reason,
@@ -1183,7 +1198,7 @@
       const res    = await fetch(`${scriptUrl}?action=get`);
       const trades = await res.json();
       if (!Array.isArray(trades)) throw new Error('Bad response');
-      currentTrades = [...trades].reverse();
+      currentTrades = [...trades].reverse().map(normalizeTrade);
       renderHero(trades);
       renderTrades(currentTrades);
     } catch (err) {
@@ -1196,6 +1211,15 @@
     if (v === null || v === undefined) return NaN;
     const s = String(v).trim().replace(/R$/i, '').replace(/^\+/, '');
     return parseFloat(s);
+  }
+
+  function normalizeTrade(t) {
+    return {
+      ...t,
+      analysis: t.analysis ?? t.notes ?? '',
+      alternateResult: t.alternateResult ?? t.alternate ?? '',
+      strategyType: t.strategyType ?? t.strategy ?? ''
+    };
   }
 
   function renderTrades(trades) {
@@ -1221,7 +1245,7 @@
         ? '<span class="result-open">Open</span>'
         : `<div class="trade-result ${cls}">${r > 0 ? '+' : ''}${r.toFixed(2)}<span class="unit">R</span></div>`;
 
-      const subBits = [t.date, t.stopType].filter(Boolean);
+      const subBits = [t.date, t.strategyType, t.stopType].filter(Boolean);
       if (t.closeType) subBits.push(t.closeType);
       const sub = subBits.join(' · ') + (t.reason ? ' — ' + t.reason.toLowerCase() : '');
 
