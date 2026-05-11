@@ -1424,16 +1424,22 @@
       return;
     }
 
-    // Adaptive bins anchored on zero
+    // Adaptive bins anchored on zero. Extend exact outer edges so values like +13R
+    // are counted in a visible +13R bin instead of falling on the exclusive boundary.
     const dataMin = Math.min(0, ...rs);
     const dataMax = Math.max(0, ...rs);
-    const lo = Math.floor(dataMin);
-    const hi = Math.ceil(dataMax);
-    const span = hi - lo;
+    const baseLo = Math.floor(dataMin);
+    const baseHi = Math.ceil(dataMax);
+    const span = baseHi - baseLo;
 
     const targetBars = 18;
     let binW = 1;
     while (span / binW > targetBars) binW *= 2;
+
+    let lo = Math.floor(dataMin / binW) * binW;
+    let hi = Math.ceil(dataMax / binW) * binW;
+    if (dataMin < 0 && dataMin === lo) lo -= binW;
+    if (dataMax > 0 && dataMax === hi) hi += binW;
 
     const bins = [];
     for (let edge = 0; edge > lo; edge -= binW) bins.unshift([edge - binW, edge]);
