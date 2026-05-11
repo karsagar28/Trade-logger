@@ -13,7 +13,7 @@ Each planned trade records:
 
 - Date
 - Ticker
-- Strategy: Breakout, Pullback-generic, Pullback-30min, or Other
+- Strategy: Breakout, Pullback-generic, Pullback-30min, Parabolic Short, or Other
 - Stop type
 - Triggered flag
 
@@ -26,7 +26,7 @@ Each trade records:
 - Date
 - Ticker
 - Type: shares or options
-- Strategy type: Breakout, Pullback-generic, Pullback-30min, or Other
+- Strategy type: Breakout, Pullback-generic, Pullback-30min, Parabolic Short, or Other
 - Risk: always saved as `1R`
 - Stop type
 - Result in R
