@@ -165,22 +165,44 @@
     font-size: 10px; color: var(--muted);
     font-weight: 600; font-style: normal;
   }
-  .bar-track {
+  .relationship-bar {
     height: 14px;
     background: var(--surface2);
     position: relative;
     margin-bottom: 10px;
     overflow: hidden;
   }
-  .bar-fill { height: 100%; transition: width 0.4s ease; }
-  .bar-fill.risked {
+  .risk-baseline {
+    position: absolute; inset: 0;
     background: var(--muted);
     opacity: 0.55;
   }
-  .bar-fill.risked::after {
+  .risk-baseline::after {
     content: ''; position: absolute; inset: 0;
     background-image: repeating-linear-gradient(45deg, transparent 0, transparent 3px, rgba(0,0,0,0.4) 3px, rgba(0,0,0,0.4) 5px);
     pointer-events: none;
+  }
+  .return-fill {
+    position: absolute; top: 0; bottom: 0; left: 0;
+    width: 0;
+    background: var(--win);
+    transition: width 0.4s ease, background 0.2s ease;
+  }
+  .return-fill.loss {
+    left: auto; right: 0;
+    background: var(--loss);
+  }
+  .return-cap {
+    position: absolute; top: 0; bottom: 0; right: 0;
+    width: 2px; background: var(--text);
+    opacity: 0.8;
+  }
+  .relationship-note {
+    font-family: var(--sans);
+    font-size: 9px; letter-spacing: 1px;
+    color: var(--muted); font-weight: 600;
+    text-transform: uppercase;
+    margin-top: -4px;
   }
   .returned-italic {
     font-style: italic;
@@ -279,6 +301,19 @@
   .group-divider.closed {
     color: var(--muted);
   }
+  .group-divider.closed-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    width: 100%;
+    background: none; border: none;
+    cursor: pointer;
+    text-align: left;
+  }
+  .group-divider.closed-toggle:active { opacity: 0.7; }
+  .group-chevron {
+    transition: transform 0.2s ease;
+    font-size: 13px;
+  }
+  .group-chevron.collapsed { transform: rotate(-90deg); }
 
   .trade {
     display: grid; grid-template-columns: 14px 1fr auto;
@@ -688,20 +723,20 @@
   <div class="lead-label">Risk vs. Return · All trades</div>
 
   <div class="bar-row">
-    <span class="bar-label">Risked</span>
+    <span class="bar-label">Risked vs Returned</span>
     <span class="bar-value"><span id="s-risked">—</span><span class="unit">R</span></span>
   </div>
-  <div class="bar-track">
-    <div class="bar-fill risked" id="bar-risked" style="width:0"></div>
+  <div class="relationship-bar" aria-label="Risked versus returned">
+    <div class="risk-baseline"></div>
+    <div class="return-fill" id="bar-returned" style="width:0"></div>
+    <div class="return-cap"></div>
   </div>
 
   <div class="bar-row">
     <span class="bar-label">Returned</span>
     <span class="bar-value returned-italic" id="s-returned-wrap"><span id="s-returned">—</span><span class="unit">R</span></span>
   </div>
-  <div class="bar-track">
-    <div class="bar-fill" id="bar-returned" style="width:0; background: var(--win);"></div>
-  </div>
+  <div class="relationship-note" id="risk-return-note">Returned as % of risked</div>
 
   <div class="efficiency-row">
     <span class="bar-label">Efficiency</span>
@@ -729,9 +764,9 @@
       <div class="stat-sub">per trade</div>
     </div>
     <div class="stat-cell">
-      <div class="stat-label">Open</div>
-      <div class="stat-val" id="s-open">—</div>
-      <div class="stat-sub" id="s-trades-sub">— total</div>
+      <div class="stat-label">Active Risk</div>
+      <div class="stat-val" id="s-active-risk">—</div>
+      <div class="stat-sub" id="s-active-risk-sub">— open</div>
     </div>
   </div>
 </div>
@@ -877,6 +912,7 @@
   let currentTrades   = [];
   let scriptUrl       = localStorage.getItem('tradeLoggerUrl') || '';
   let statsVisible    = localStorage.getItem('statsVisible') !== 'false';
+  let closedTradesVisible = localStorage.getItem('closedTradesVisible') !== 'false';
   let rulesSectionOpen = false;
   let isCompliant      = true;
 
@@ -896,6 +932,13 @@
         .map(t => parseR(t.result));
       drawHistogram(rs);
     }
+  }
+
+  function toggleClosedTrades(event) {
+    if (event) event.stopPropagation();
+    closedTradesVisible = !closedTradesVisible;
+    localStorage.setItem('closedTradesVisible', closedTradesVisible);
+    renderTrades(currentTrades);
   }
 
   /* ── Rules section ── */
@@ -1199,7 +1242,7 @@
       const trades = await res.json();
       if (!Array.isArray(trades)) throw new Error('Bad response');
       currentTrades = [...trades].reverse().map(normalizeTrade);
-      renderHero(trades);
+      renderHero(currentTrades);
       renderTrades(currentTrades);
     } catch (err) {
       setEmpty('Could not load trades. Check your Apps Script URL.');
@@ -1278,9 +1321,15 @@
     if (open.length) {
       html += '<div class="group-divider active">● Active</div>';
       html += open.map(renderRow).join('');
-      if (closed.length) html += '<div class="group-divider closed">Closed</div>';
     }
-    html += closed.map(renderRow).join('');
+    if (closed.length) {
+      html += `
+        <button class="group-divider closed closed-toggle" onclick="toggleClosedTrades(event)">
+          <span>Closed · ${closed.length}</span>
+          <span class="group-chevron ${closedTradesVisible ? '' : 'collapsed'}">▾</span>
+        </button>`;
+      if (closedTradesVisible) html += closed.map(renderRow).join('');
+    }
     el.innerHTML = html;
   }
 
@@ -1299,33 +1348,38 @@
 
   /* ── Hero: risk vs return + R histogram ── */
   function renderHero(trades) {
-    const closedRs = trades
-      .map(t => ({ r: parseR(t.result), risk: parseR(t.risk), open: !String(t.result ?? '').trim() }))
-      .filter(t => !t.open && !isNaN(t.r));
-    const allRisks = trades
-      .map(t => parseR(t.risk))
-      .filter(n => !isNaN(n));
+    const withRiskState = trades.map(t => {
+      const r = parseR(t.result);
+      const risk = parseR(t.risk);
+      const isOpen = !String(t.result ?? '').trim() || isNaN(r);
+      return { r, risk: isNaN(risk) ? 1 : risk, isOpen };
+    });
+    const closedRs = withRiskState.filter(t => !t.isOpen && !isNaN(t.r));
+    const openRisks = withRiskState.filter(t => t.isOpen).map(t => t.risk);
+    const allRisks = withRiskState.map(t => t.risk);
 
     const totalRisked   = allRisks.reduce((a, b) => a + b, 0);
+    const activeRisk    = openRisks.reduce((a, b) => a + b, 0);
     const totalReturned = closedRs.reduce((a, b) => a + b.r, 0);
     const closedCount   = closedRs.length;
     const wins          = closedRs.filter(x => x.r > 0).length;
     const winRate       = closedCount ? Math.round((wins / closedCount) * 100) : 0;
     const avgR          = closedCount ? totalReturned / closedCount : 0;
     const efficiency    = totalRisked > 0 ? Math.round((totalReturned / totalRisked) * 100) : 0;
-    const openCount     = trades.length - closedCount;
+    const openCount     = openRisks.length;
 
-    // Bars
-    const scale = Math.max(totalRisked, Math.abs(totalReturned)) || 1;
-    const riskedPct   = (totalRisked / scale) * 100;
-    const returnedPct = (Math.abs(totalReturned) / scale) * 100;
-    document.getElementById('bar-risked').style.width   = riskedPct + '%';
-    document.getElementById('bar-returned').style.width = returnedPct + '%';
-    document.getElementById('bar-returned').style.background = totalReturned >= 0 ? 'var(--win)' : 'var(--loss)';
+    // Combined bar: full track is risked, colored fill is returned.
+    const returnedPct = totalRisked > 0 ? Math.min((Math.abs(totalReturned) / totalRisked) * 100, 100) : 0;
+    const returnBar = document.getElementById('bar-returned');
+    returnBar.style.width = returnedPct + '%';
+    returnBar.classList.toggle('loss', totalReturned < 0);
 
     // Numbers
     document.getElementById('s-risked').textContent   = totalRisked.toFixed(2);
     document.getElementById('s-returned').textContent = (totalReturned >= 0 ? '+' : '') + totalReturned.toFixed(2);
+    document.getElementById('risk-return-note').textContent = totalRisked > 0
+      ? `${Math.round((totalReturned / totalRisked) * 100)}% returned against total risked`
+      : 'Returned as % of risked';
     const retWrap = document.getElementById('s-returned-wrap');
     retWrap.style.color = totalReturned > 0 ? 'var(--win)' : totalReturned < 0 ? 'var(--loss)' : '';
     const eff = document.getElementById('s-efficiency');
@@ -1338,8 +1392,9 @@
     const avgEl = document.getElementById('s-avgr');
     avgEl.textContent = closedCount ? (avgR >= 0 ? '+' : '') + avgR.toFixed(2) : '—';
     avgEl.style.color = !closedCount ? '' : avgR > 0 ? 'var(--win)' : avgR < 0 ? 'var(--loss)' : '';
-    document.getElementById('s-open').textContent       = String(openCount);
-    document.getElementById('s-trades-sub').textContent = `${trades.length} total`;
+    document.getElementById('s-active-risk').textContent = activeRisk.toFixed(2) + 'R';
+    document.getElementById('s-active-risk').style.color = activeRisk > 0 ? 'var(--accent)' : '';
+    document.getElementById('s-active-risk-sub').textContent = `${openCount} open · ${trades.length} total`;
     document.getElementById('hist-count').textContent   = `${closedCount} CLOSED`;
 
     drawHistogram(closedRs.map(x => x.r));
