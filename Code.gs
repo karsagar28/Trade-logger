@@ -6,6 +6,10 @@ function doGet(e) {
   if (action === 'add')    return addTrade(e.parameter);
   if (action === 'update') return updateTrade(e.parameter);
   if (action === 'delete') return deleteTrade(e.parameter);
+  if (action === 'getPlans')    return getPlans();
+  if (action === 'addPlan')     return addPlan(e.parameter);
+  if (action === 'updatePlan')  return updatePlan(e.parameter);
+  if (action === 'deletePlan')  return deletePlan(e.parameter);
   return getTrades();
 }
 
@@ -29,6 +33,22 @@ function getSheet_() {
     sh.getRange(1, 10).setValue('Analysis').setFontWeight('bold');
     sh.getRange(1, 11).setValue('Alternate Result').setFontWeight('bold');
     sh.getRange(1, 12).setValue('Strategy Type').setFontWeight('bold');
+  }
+  return sh;
+}
+
+function getPlanSheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName('Plans');
+  if (!sh) {
+    sh = ss.insertSheet('Plans');
+    sh.appendRow(['Date','Ticker','Strategy','Stop Type','Triggered']);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, 5).setFontWeight('bold');
+  } else {
+    sh.getRange(1, 1, 1, 5)
+      .setValues([['Date','Ticker','Strategy','Stop Type','Triggered']])
+      .setFontWeight('bold');
   }
   return sh;
 }
@@ -90,6 +110,52 @@ function deleteTrade(p) {
   }
 }
 
+function addPlan(p) {
+  try {
+    const date = normalizePlanDate_(p.date);
+    getPlanSheet_().appendRow([
+      date,
+      String(p.ticker || '').toUpperCase(),
+      p.strategy || '',
+      p.stopType || '',
+      normalizeTriggered_(p.triggered)
+    ]);
+    return json_({ success: true });
+  } catch (err) {
+    return json_({ error: err.message });
+  }
+}
+
+function updatePlan(p) {
+  try {
+    const sh  = getPlanSheet_();
+    const row = parseInt(p.row);
+    if (isNaN(row) || row < 2) return json_({ error: 'Invalid row' });
+
+    sh.getRange(row, 1).setValue(normalizePlanDate_(p.date));
+    sh.getRange(row, 2).setValue(String(p.ticker || '').toUpperCase());
+    sh.getRange(row, 3).setValue(p.strategy || '');
+    sh.getRange(row, 4).setValue(p.stopType || '');
+    sh.getRange(row, 5).setValue(normalizeTriggered_(p.triggered));
+
+    return json_({ success: true });
+  } catch (err) {
+    return json_({ error: err.message });
+  }
+}
+
+function deletePlan(p) {
+  try {
+    const sh  = getPlanSheet_();
+    const row = parseInt(p.row);
+    if (isNaN(row) || row < 2) return json_({ error: 'Invalid row' });
+    sh.deleteRow(row);
+    return json_({ success: true });
+  } catch (err) {
+    return json_({ error: err.message });
+  }
+}
+
 function getTrades() {
   try {
     const sh   = getSheet_();
@@ -119,6 +185,28 @@ function getTrades() {
   }
 }
 
+function getPlans() {
+  try {
+    const sh   = getPlanSheet_();
+    const last = sh.getLastRow();
+    if (last < 2) return json_([]);
+    const rows = sh.getRange(2, 1, last - 1, 5).getValues();
+    const tz = Session.getScriptTimeZone();
+    return json_(rows.map((r, i) => ({
+      row:       i + 2,
+      date:      r[0] instanceof Date
+                   ? Utilities.formatDate(r[0], tz, 'yyyy-MM-dd')
+                   : String(r[0] || ''),
+      ticker:    r[1] || '',
+      strategy:  r[2] || '',
+      stopType:  r[3] || '',
+      triggered: normalizeTriggered_(r[4])
+    })));
+  } catch (err) {
+    return json_({ error: err.message });
+  }
+}
+
 function normalizeCompliant_(value) {
   const v = String(value || '').toLowerCase();
   return (v === 'no' || v === 'false' || v === 'non-compliant' || v === 'noncompliant')
@@ -136,6 +224,16 @@ function formatR_(value) {
   const n = parseFloat(value);
   if (isNaN(n)) return '';
   return (n >= 0 ? '+' : '') + n + 'R';
+}
+
+function normalizePlanDate_(value) {
+  if (value) return String(value);
+  return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+}
+
+function normalizeTriggered_(value) {
+  const v = String(value || '').toLowerCase();
+  return (v === 'yes' || v === 'true' || v === 'triggered') ? 'Yes' : 'No';
 }
 
 function json_(data) {

@@ -1,11 +1,23 @@
 # Trade Logger
 
-A lightweight trade journal built as a Google Apps Script web app backed by a Google Sheet. The UI is a single-page ledger for logging trades, reviewing R-multiple performance, and scanning notes or counterfactual analysis from trade history.
+A lightweight trade journal and pre-market planner built as a Google Apps Script web app backed by a Google Sheet. The UI is a single-page ledger for writing the day's intended trades, logging executions, reviewing R-multiple performance, and scanning notes or counterfactual analysis from trade history.
 
 ## Project Structure
 
-- `Code.gs` contains the Google Apps Script backend. It reads and writes trade rows in the `Trades` sheet.
+- `Code.gs` contains the Google Apps Script backend. It reads and writes trade rows in the `Trades` sheet and daily plan rows in the `Plans` sheet.
 - `index.html` contains the full frontend: layout, styles, form logic, charts, and calls to the Apps Script web app URL.
+
+## Daily Plan Fields
+
+Each planned trade records:
+
+- Date
+- Ticker
+- Strategy: Breakout, Pullback-generic, Pullback-30min, or Other
+- Stop type
+- Triggered flag
+
+The planner is meant for pre-market preparation. Add only the trades you intend to take before the open, then mark `Triggered` during the session if the setup actually appears. Planned trades are stored separately from executed trades, so checking a plan does not create a logged trade automatically.
 
 ## Trade Fields
 
@@ -51,12 +63,14 @@ Updating the existing deployment keeps the same web app URL. Creating a new depl
 
 1. Open the deployed web app URL or the local `index.html` file.
 2. If prompted, paste the Apps Script deployment URL into settings.
-3. Click `+` to add a trade.
-4. Enter ticker, type, strategy type, stop type, optional result, and compliance details.
-5. Use `Compliant trade` for rule-following trades.
-6. Uncheck `Compliant trade` for rule breaks, then enter the alternate result and counterfactual analysis.
-7. Hover over trade rows to quickly preview saved comments or counterfactual analysis.
-8. Click a trade row to edit it.
+3. Use `Today's Plan` before market open to add tickers, strategy, stop type, and triggered status.
+4. Click a plan row to edit it, or tick the checkbox when a planned setup triggers live.
+5. Click `+` to add an executed trade.
+6. Enter ticker, type, strategy type, stop type, optional result, and compliance details.
+7. Use `Compliant trade` for rule-following trades.
+8. Uncheck `Compliant trade` for rule breaks, then enter the alternate result and counterfactual analysis.
+9. Hover over trade rows to quickly preview saved comments or counterfactual analysis.
+10. Click a trade row to edit it.
 
 ## Updating the App
 
@@ -70,4 +84,4 @@ Google Apps Script does not automatically pull changes from this repository, so 
 
 ## Data Notes
 
-The app stores data in a sheet named `Trades`. If it does not exist, the backend creates it and adds the expected headers. Existing sheets are updated with newer header names such as `Compliant`, `Analysis`, `Alternate Result`, and `Strategy Type`.
+The app stores execution data in a sheet named `Trades` and pre-market plans in a sheet named `Plans`. If either sheet does not exist, the backend creates it and adds the expected headers. Existing trade sheets are updated with newer header names such as `Compliant`, `Analysis`, `Alternate Result`, and `Strategy Type`.

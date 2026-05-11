@@ -108,6 +108,114 @@
     cursor: pointer;
   }
 
+  /* ── Daily planner ── */
+  .planner {
+    position: fixed;
+    top: max(18px, env(safe-area-inset-top));
+    left: 50%;
+    transform: translateX(-50%);
+    width: calc(100% - 32px);
+    max-width: 480px;
+    max-height: calc(100vh - 36px);
+    overflow-y: auto;
+    background: var(--bg);
+    border-top: 1.5px solid var(--text);
+    border-bottom: 1.5px solid var(--text);
+    padding: 16px 20px 18px;
+    z-index: 181;
+    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+  }
+  .planner-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.58);
+    z-index: 180;
+  }
+  .planner-title-row {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 12px;
+  }
+  .planner-title-group {
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .planner-title {
+    font-family: var(--serif);
+    font-size: 18px; font-weight: 500;
+  }
+  .planner-meta {
+    font-family: var(--sans);
+    font-size: 9px; letter-spacing: 1.5px;
+    color: var(--muted); text-transform: uppercase;
+    font-weight: 700;
+  }
+  .planner-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .planner-form .wide { grid-column: 1 / -1; }
+  .planner-actions {
+    grid-column: 1 / -1;
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 10px; align-items: center;
+  }
+  .planner-btn {
+    background: var(--text); color: var(--bg);
+    border: none; padding: 10px 12px;
+    font-family: var(--sans);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1.5px; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .planner-link {
+    background: none; border: none;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 1.4px; text-transform: uppercase;
+    cursor: pointer; padding: 6px 0;
+  }
+  .planner-list {
+    border-top: 0.5px solid var(--dim);
+  }
+  .plan-row {
+    display: grid; grid-template-columns: 18px 1fr auto;
+    gap: 10px; align-items: center;
+    padding: 12px 0;
+    border-bottom: 0.5px solid var(--dim);
+  }
+  .plan-check {
+    width: 16px; height: 16px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .plan-main { min-width: 0; cursor: pointer; }
+  .plan-title {
+    font-family: var(--serif);
+    font-size: 17px; font-weight: 500;
+    line-height: 1.1;
+  }
+  .plan-sub {
+    font-family: var(--sans);
+    font-size: 10px; color: var(--muted);
+    line-height: 1.4; margin-top: 4px;
+  }
+  .plan-status {
+    font-family: var(--sans);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 1.3px; text-transform: uppercase;
+    color: var(--muted);
+  }
+  .plan-status.triggered { color: var(--accent); }
+  .plan-delete {
+    background: none; border: none;
+    color: var(--loss);
+    font-family: var(--sans);
+    font-size: 9px; font-weight: 700;
+    letter-spacing: 1.3px; text-transform: uppercase;
+    cursor: pointer; padding: 5px 0 0;
+  }
+
   /* ── Performance toggle header ── */
   .perf-header {
     display: flex; justify-content: space-between; align-items: center;
@@ -687,6 +795,92 @@
     letter-spacing: 1.5px; text-transform: uppercase;
     color: var(--accent); cursor: pointer; padding: 0;
   }
+
+  @media (min-width: 900px) {
+    body {
+      max-width: 1120px;
+      padding: 24px 32px 80px;
+      padding-top: max(24px, env(safe-area-inset-top));
+    }
+    .masthead {
+      margin-bottom: 22px;
+    }
+    .masthead-title {
+      font-size: 42px;
+    }
+    .desktop-shell {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.8fr) minmax(440px, 1.2fr);
+      gap: 34px;
+      align-items: start;
+    }
+    .performance-panel {
+      position: sticky;
+      top: 20px;
+      align-self: start;
+    }
+    .log-panel {
+      min-width: 0;
+    }
+    .hero {
+      margin-bottom: 0;
+      padding-bottom: 18px;
+    }
+    .trade-list {
+      max-height: calc(100vh - 160px);
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .trade:active {
+      margin: 0;
+      padding: 14px 0;
+    }
+    .planner {
+      max-width: 760px;
+      padding: 20px 24px 22px;
+    }
+    .planner-form {
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      align-items: end;
+    }
+    .planner-form .wide {
+      grid-column: span 2;
+    }
+    .planner-actions {
+      grid-column: span 2;
+    }
+    .planner-list {
+      max-height: 38vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .bottom-sheet {
+      top: 50%;
+      bottom: auto;
+      left: auto;
+      right: max(32px, calc((100vw - 1120px) / 2 + 32px));
+      transform: translateY(-50%);
+      max-width: 420px;
+      max-height: min(760px, calc(100vh - 48px));
+      border-top: 1.5px solid var(--text);
+      border-bottom: 1.5px solid var(--text);
+      padding: 16px 22px 22px;
+    }
+    .sheet-handle {
+      display: none;
+    }
+    .fab {
+      right: max(32px, calc((100vw - 1120px) / 2 + 32px));
+      bottom: 32px;
+    }
+    .analysis-popover {
+      max-width: 300px;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .planner-form { grid-template-columns: 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -696,7 +890,8 @@
   <div class="masthead-meta">
     <span id="mast-vol">VOL. 12 · WK 17</span>
     <div class="masthead-actions">
-      <button class="icon-btn" onclick="loadTrades()" title="Refresh">↻</button>
+      <button class="icon-btn" onclick="openPlanner()" title="Daily plan">Plan</button>
+      <button class="icon-btn" onclick="loadAll()" title="Refresh">↻</button>
       <button class="icon-btn" onclick="toggleSetup()" title="Settings">⚙</button>
     </div>
   </div>
@@ -712,6 +907,65 @@
   </div>
 </div>
 
+<!-- Daily planner -->
+<div class="planner-overlay" id="planner-overlay" onclick="closePlanner()" style="display:none"></div>
+<section class="planner" id="planner" style="display:none">
+  <div class="planner-title-row">
+    <div class="planner-title-group">
+      <h2 class="planner-title">Today's Plan</h2>
+      <span class="planner-meta" id="plan-count">— PLANNED</span>
+    </div>
+    <button class="close-btn" onclick="closePlanner()">✕</button>
+  </div>
+
+  <div class="planner-form">
+    <div>
+      <div class="field-label">Date</div>
+      <input type="date" id="p-date" class="input" />
+    </div>
+    <div>
+      <div class="field-label">Ticker</div>
+      <input type="text" id="p-ticker" class="input" placeholder="AAPL"
+             autocomplete="off" autocapitalize="characters" maxlength="10" />
+    </div>
+    <div>
+      <div class="field-label">Strategy</div>
+      <select id="p-strategy">
+        <option value="">Select…</option>
+        <option value="Breakout">Breakout</option>
+        <option value="Pullback-generic">Pullback-generic</option>
+        <option value="Pullback-30min">Pullback-30min</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+    <div>
+      <div class="field-label">Stop type</div>
+      <select id="p-stop">
+        <option value="">Select…</option>
+        <option value="Mental Stop">Mental Stop</option>
+        <option value="Low of Day">Low of Day</option>
+        <option value="Pivot Low">Pivot Low</option>
+        <option value="Break Even">Break Even</option>
+        <option value="Manual Stop">Manual Stop</option>
+      </select>
+    </div>
+    <label class="compliance-check wide">
+      <input type="checkbox" id="p-triggered" />
+      <span>Triggered</span>
+    </label>
+    <div class="planner-actions">
+      <button class="planner-btn" id="btn-plan-submit" onclick="submitPlan()">Add Plan</button>
+      <button class="planner-link" id="btn-plan-reset" onclick="resetPlanForm()" style="display:none">Cancel</button>
+    </div>
+  </div>
+
+  <div class="planner-list" id="planner-list">
+    <div class="empty-state">Loading…</div>
+  </div>
+</section>
+
+<main class="desktop-shell">
+  <section class="performance-panel">
 <!-- Performance section toggle header -->
 <div class="perf-header" id="stats-header" onclick="toggleStats()">
   <span class="perf-title">Performance</span>
@@ -770,7 +1024,9 @@
     </div>
   </div>
 </div>
+  </section>
 
+  <section class="log-panel">
 <!-- Section header -->
 <div class="section-head">
   <h2>The Log</h2>
@@ -781,6 +1037,8 @@
 <div class="trade-list" id="trade-list">
   <div class="empty-state">Loading…</div>
 </div>
+  </section>
+</main>
 
 <!-- FAB: New trade -->
 <button class="fab" onclick="openNew()">＋</button>
@@ -909,7 +1167,9 @@
 <script>
   let tradeType       = 'shares';
   let editRow         = null;
+  let editPlanRow     = null;
   let currentTrades   = [];
+  let currentPlans    = [];
   let scriptUrl       = localStorage.getItem('tradeLoggerUrl') || '';
   let statsVisible    = localStorage.getItem('statsVisible') !== 'false';
   let closedTradesVisible = localStorage.getItem('closedTradesVisible') !== 'false';
@@ -1043,14 +1303,16 @@
     const wk = Math.ceil((((now - start) / 86400000) + start.getDay() + 1) / 7);
     const vol = now.getFullYear() - 2014;
     document.getElementById('mast-vol').textContent = `VOL. ${vol} · WK ${wk}`;
+    document.getElementById('p-date').value = isoDate(now);
     applyStatsVisibility();
 
     if (!scriptUrl) {
       document.getElementById('setup').style.display = 'block';
       setEmpty('Enter your Apps Script URL in settings (⚙) to get started.');
+      setPlannerEmpty('Enter your Apps Script URL in settings (⚙) to start planning.');
       renderHero([]);
     } else {
-      loadTrades();
+      loadAll();
     }
   }
 
@@ -1071,7 +1333,145 @@
     localStorage.setItem('tradeLoggerUrl', url);
     document.getElementById('setup').style.display = 'none';
     toast('Connected');
+    loadAll();
+  }
+
+  function isoDate(date = new Date()) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function loadAll() {
+    loadPlans();
     loadTrades();
+  }
+
+  function openPlanner() {
+    document.getElementById('planner-overlay').style.display = 'block';
+    document.getElementById('planner').style.display = 'block';
+    if (!currentPlans.length && scriptUrl) loadPlans();
+  }
+
+  function closePlanner() {
+    document.getElementById('planner-overlay').style.display = 'none';
+    document.getElementById('planner').style.display = 'none';
+  }
+
+  /* ── Plan submit/edit ── */
+  async function submitPlan() {
+    const date = document.getElementById('p-date').value || isoDate();
+    const ticker = document.getElementById('p-ticker').value.trim().toUpperCase();
+    const strategy = document.getElementById('p-strategy').value;
+    const stopType = document.getElementById('p-stop').value;
+    const triggered = document.getElementById('p-triggered').checked ? 'Yes' : 'No';
+
+    if (!ticker || !strategy || !stopType) { toast('Plan needs ticker, strategy, and stop', true); return; }
+    if (!scriptUrl) { toast('Set your Apps Script URL first', true); toggleSetup(); return; }
+
+    const btn = document.getElementById('btn-plan-submit');
+    const isEdit = editPlanRow !== null;
+    btn.disabled = true; btn.textContent = isEdit ? 'Updating…' : 'Adding…';
+
+    try {
+      const params = new URLSearchParams({
+        action: isEdit ? 'updatePlan' : 'addPlan',
+        date, ticker, strategy, stopType, triggered
+      });
+      if (isEdit) params.set('row', String(editPlanRow));
+
+      const res  = await fetch(`${scriptUrl}?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        toast(isEdit ? 'Plan updated' : 'Plan added');
+        resetPlanForm();
+        loadPlans();
+      } else {
+        toast(data.error || 'Error saving plan', true);
+      }
+    } catch (err) {
+      toast('Connection failed — check URL', true);
+      console.error(err);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = editPlanRow !== null ? 'Update Plan' : 'Add Plan';
+    }
+  }
+
+  function resetPlanForm() {
+    editPlanRow = null;
+    document.getElementById('p-date').value = isoDate();
+    document.getElementById('p-ticker').value = '';
+    document.getElementById('p-strategy').value = '';
+    document.getElementById('p-stop').value = '';
+    document.getElementById('p-triggered').checked = false;
+    document.getElementById('btn-plan-submit').textContent = 'Add Plan';
+    document.getElementById('btn-plan-reset').style.display = 'none';
+  }
+
+  function editPlan(index) {
+    const p = currentPlans[index];
+    if (!p) return;
+    editPlanRow = p.row;
+    document.getElementById('p-date').value = p.date || isoDate();
+    document.getElementById('p-ticker').value = p.ticker || '';
+    document.getElementById('p-strategy').value = p.strategy || '';
+    document.getElementById('p-stop').value = p.stopType || '';
+    document.getElementById('p-triggered').checked = isPlanTriggered(p);
+    document.getElementById('btn-plan-submit').textContent = 'Update Plan';
+    document.getElementById('btn-plan-reset').style.display = '';
+  }
+
+  async function togglePlanTriggered(index, checked, event) {
+    if (event) event.stopPropagation();
+    const p = currentPlans[index];
+    if (!p || !scriptUrl) return;
+
+    try {
+      const params = new URLSearchParams({
+        action: 'updatePlan',
+        row: String(p.row),
+        date: p.date || isoDate(),
+        ticker: p.ticker || '',
+        strategy: p.strategy || '',
+        stopType: p.stopType || '',
+        triggered: checked ? 'Yes' : 'No'
+      });
+      const res = await fetch(`${scriptUrl}?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        currentPlans[index].triggered = checked ? 'Yes' : 'No';
+        renderPlans(currentPlans);
+      } else {
+        toast(data.error || 'Error updating plan', true);
+        renderPlans(currentPlans);
+      }
+    } catch (err) {
+      toast('Connection failed', true);
+      renderPlans(currentPlans);
+    }
+  }
+
+  async function deletePlan(index, event) {
+    if (event) event.stopPropagation();
+    const p = currentPlans[index];
+    if (!p || !scriptUrl) return;
+
+    try {
+      const params = new URLSearchParams({ action: 'deletePlan', row: String(p.row) });
+      const res = await fetch(`${scriptUrl}?${params}`);
+      const data = await res.json();
+      if (data.success) {
+        toast('Plan deleted');
+        if (editPlanRow === p.row) resetPlanForm();
+        loadPlans();
+      } else {
+        toast(data.error || 'Error deleting plan', true);
+      }
+    } catch (err) {
+      toast('Connection failed', true);
+    }
   }
 
   /* ── Sheet open/close (handles both new + edit) ── */
@@ -1250,6 +1650,20 @@
     }
   }
 
+  async function loadPlans() {
+    if (!scriptUrl) return;
+    try {
+      const res   = await fetch(`${scriptUrl}?action=getPlans`);
+      const plans = await res.json();
+      if (!Array.isArray(plans)) throw new Error('Bad response');
+      currentPlans = [...plans].reverse().map(normalizePlan);
+      renderPlans(currentPlans);
+    } catch (err) {
+      setPlannerEmpty('Could not load plans. Check your Apps Script URL.');
+      console.error(err);
+    }
+  }
+
   function parseR(v) {
     if (v === null || v === undefined) return NaN;
     const s = String(v).trim().replace(/R$/i, '').replace(/^\+/, '');
@@ -1263,6 +1677,62 @@
       alternateResult: t.alternateResult ?? t.alternate ?? '',
       strategyType: t.strategyType ?? t.strategy ?? ''
     };
+  }
+
+  function normalizePlan(p) {
+    return {
+      ...p,
+      strategy: p.strategy ?? p.strategyType ?? '',
+      stopType: p.stopType ?? '',
+      triggered: p.triggered ?? 'No'
+    };
+  }
+
+  function renderPlans(plans) {
+    const el = document.getElementById('planner-list');
+    const today = isoDate();
+    const todaysPlans = plans.filter(p => String(p.date || '') === today);
+    const triggered = todaysPlans.filter(isPlanTriggered).length;
+    document.getElementById('plan-count').textContent = `${triggered}/${todaysPlans.length} TRIGGERED`;
+
+    if (!plans.length) {
+      setPlannerEmpty('No plans yet. Build the day before the bell.');
+      return;
+    }
+
+    const sorted = [...plans].sort((a, b) => {
+      const dateCmp = String(b.date || '').localeCompare(String(a.date || ''));
+      if (dateCmp) return dateCmp;
+      return String(a.ticker || '').localeCompare(String(b.ticker || ''));
+    });
+
+    el.innerHTML = sorted.map((p) => {
+      const sourceIndex = currentPlans.findIndex(x => x.row === p.row);
+      const isTriggered = isPlanTriggered(p);
+      const sub = [formatPlanDate(p.date), p.strategy, p.stopType].filter(Boolean).join(' · ');
+      return `
+        <div class="plan-row" onclick="editPlan(${sourceIndex})">
+          <input class="plan-check" type="checkbox" ${isTriggered ? 'checked' : ''}
+                 onchange="togglePlanTriggered(${sourceIndex}, this.checked, event)" onclick="event.stopPropagation()" />
+          <div class="plan-main">
+            <div class="plan-title">${escapeHtml(p.ticker)}</div>
+            <div class="plan-sub">${escapeHtml(sub)}</div>
+            <button class="plan-delete" onclick="deletePlan(${sourceIndex}, event)">Delete</button>
+          </div>
+          <div class="plan-status ${isTriggered ? 'triggered' : ''}">${isTriggered ? 'Triggered' : 'Waiting'}</div>
+        </div>`;
+    }).join('');
+  }
+
+  function formatPlanDate(value) {
+    if (!value) return '';
+    const [y, m, d] = String(value).split('-').map(Number);
+    if (!y || !m || !d) return value;
+    return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+
+  function isPlanTriggered(p) {
+    return String(p.triggered || '').toLowerCase() === 'yes';
   }
 
   function renderTrades(trades) {
@@ -1541,6 +2011,10 @@
   function setEmpty(msg) {
     document.getElementById('trade-list').innerHTML = `<div class="empty-state">${msg}</div>`;
   }
+  function setPlannerEmpty(msg) {
+    document.getElementById('planner-list').innerHTML = `<div class="empty-state">${msg}</div>`;
+    document.getElementById('plan-count').textContent = '0/0 TRIGGERED';
+  }
   function toast(msg, isError = false) {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -1562,6 +2036,12 @@
   });
 
   document.addEventListener('click', () => hideAnalysisPopover());
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closePlanner();
+      hideAnalysisPopover();
+    }
+  });
 
   init();
 </script>
