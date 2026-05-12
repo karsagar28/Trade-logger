@@ -110,25 +110,8 @@
 
   /* ── Daily planner ── */
   .planner {
-    position: fixed;
-    top: max(18px, env(safe-area-inset-top));
-    left: 50%;
-    transform: translateX(-50%);
-    width: calc(100% - 32px);
-    max-width: 480px;
-    max-height: calc(100vh - 36px);
-    overflow-y: auto;
-    background: var(--bg);
     border-top: 1.5px solid var(--text);
-    border-bottom: 1.5px solid var(--text);
-    padding: 16px 20px 18px;
-    z-index: 181;
-    box-shadow: 0 12px 40px rgba(0,0,0,0.45);
-  }
-  .planner-overlay {
-    position: fixed; inset: 0;
-    background: rgba(0,0,0,0.58);
-    z-index: 180;
+    padding-top: 14px;
   }
   .planner-title-row {
     display: flex; justify-content: space-between; align-items: center;
@@ -214,6 +197,36 @@
     font-size: 9px; font-weight: 700;
     letter-spacing: 1.3px; text-transform: uppercase;
     cursor: pointer; padding: 5px 0 0;
+  }
+
+  /* ── Primary tabs ── */
+  .primary-tabs {
+    display: grid; grid-template-columns: 1fr 1fr;
+    border-bottom: 1.5px solid var(--text);
+    margin-bottom: 18px;
+  }
+  .tab-btn {
+    background: none; border: none;
+    color: var(--muted);
+    font-family: var(--sans);
+    font-size: 10px; font-weight: 700;
+    letter-spacing: 1.6px; text-transform: uppercase;
+    padding: 11px 0;
+    cursor: pointer;
+    position: relative;
+  }
+  .tab-btn.active {
+    color: var(--text);
+  }
+  .tab-btn.active::after {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; bottom: -1.5px;
+    height: 2px;
+    background: var(--accent);
+  }
+  .tab-panel[hidden] {
+    display: none;
   }
 
   /* ── Performance toggle header ── */
@@ -835,10 +848,6 @@
       margin: 0;
       padding: 14px 0;
     }
-    .planner {
-      max-width: 760px;
-      padding: 20px 24px 22px;
-    }
     .planner-form {
       grid-template-columns: 1fr 1fr 1fr 1fr;
       align-items: end;
@@ -850,7 +859,7 @@
       grid-column: span 2;
     }
     .planner-list {
-      max-height: 38vh;
+      max-height: calc(100vh - 300px);
       overflow-y: auto;
       padding-right: 4px;
     }
@@ -890,7 +899,6 @@
   <div class="masthead-meta">
     <span id="mast-vol">VOL. 12 · WK 17</span>
     <div class="masthead-actions">
-      <button class="icon-btn" onclick="openPlanner()" title="Daily plan">Plan</button>
       <button class="icon-btn" onclick="loadAll()" title="Refresh">↻</button>
       <button class="icon-btn" onclick="toggleSetup()" title="Settings">⚙</button>
     </div>
@@ -907,15 +915,18 @@
   </div>
 </div>
 
+<nav class="primary-tabs" aria-label="Trade logger sections">
+  <button class="tab-btn active" id="tab-log-btn" onclick="setActiveTab('log')">Log</button>
+  <button class="tab-btn" id="tab-plan-btn" onclick="setActiveTab('plan')">Plan</button>
+</nav>
+
 <!-- Daily planner -->
-<div class="planner-overlay" id="planner-overlay" onclick="closePlanner()" style="display:none"></div>
-<section class="planner" id="planner" style="display:none">
+<section class="planner tab-panel" id="plan-panel" hidden>
   <div class="planner-title-row">
     <div class="planner-title-group">
       <h2 class="planner-title">Today's Plan</h2>
       <span class="planner-meta" id="plan-count">— PLANNED</span>
     </div>
-    <button class="close-btn" onclick="closePlanner()">✕</button>
   </div>
 
   <div class="planner-form">
@@ -965,7 +976,7 @@
   </div>
 </section>
 
-<main class="desktop-shell">
+<main class="desktop-shell tab-panel" id="log-panel">
   <section class="performance-panel">
 <!-- Performance section toggle header -->
 <div class="perf-header" id="stats-header" onclick="toggleStats()">
@@ -1177,6 +1188,7 @@
   let closedTradesVisible = localStorage.getItem('closedTradesVisible') !== 'false';
   let rulesSectionOpen = false;
   let isCompliant      = true;
+  let activeTab        = localStorage.getItem('activeTradeLoggerTab') || 'log';
 
   function toggleStats() {
     statsVisible = !statsVisible;
@@ -1306,6 +1318,7 @@
     const vol = now.getFullYear() - 2014;
     document.getElementById('mast-vol').textContent = `VOL. ${vol} · WK ${wk}`;
     document.getElementById('p-date').value = isoDate(now);
+    setActiveTab(activeTab);
     applyStatsVisibility();
 
     if (!scriptUrl) {
@@ -1350,15 +1363,17 @@
     loadTrades();
   }
 
-  function openPlanner() {
-    document.getElementById('planner-overlay').style.display = 'block';
-    document.getElementById('planner').style.display = 'block';
-    if (!currentPlans.length && scriptUrl) loadPlans();
-  }
+  function setActiveTab(tab) {
+    activeTab = tab === 'plan' ? 'plan' : 'log';
+    localStorage.setItem('activeTradeLoggerTab', activeTab);
 
-  function closePlanner() {
-    document.getElementById('planner-overlay').style.display = 'none';
-    document.getElementById('planner').style.display = 'none';
+    document.getElementById('log-panel').hidden = activeTab !== 'log';
+    document.getElementById('plan-panel').hidden = activeTab !== 'plan';
+    document.getElementById('tab-log-btn').classList.toggle('active', activeTab === 'log');
+    document.getElementById('tab-plan-btn').classList.toggle('active', activeTab === 'plan');
+
+    if (activeTab === 'plan' && !currentPlans.length && scriptUrl) loadPlans();
+    if (activeTab === 'log') applyStatsVisibility();
   }
 
   /* ── Plan submit/edit ── */
@@ -2040,7 +2055,6 @@
   document.addEventListener('click', () => hideAnalysisPopover());
   document.addEventListener('keydown', (event) => {
     if (event.key === 'Escape') {
-      closePlanner();
       hideAnalysisPopover();
     }
   });
