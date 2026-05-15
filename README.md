@@ -29,7 +29,7 @@ Each trade records:
 - Strategy type: Breakout, Pullback-generic, Pullback-30min, Parabolic Short, or Other
 - Risk: always saved as `1R`
 - Stop type
-- Result in R
+- Realized R, including partial profits
 - Close type and reason
 - Compliance flag
 - Analysis/comment text
@@ -66,11 +66,13 @@ Updating the existing deployment keeps the same web app URL. Creating a new depl
 3. Use `Today's Plan` before market open to add tickers, strategy, stop type, and triggered status.
 4. Click a plan row to edit it, or tick the checkbox when a planned setup triggers live.
 5. Click `+` to add an executed trade.
-6. Enter ticker, type, strategy type, stop type, optional result, and compliance details.
+6. Enter ticker, type, strategy type, stop type, optional realized R, and compliance details.
 7. Use `Compliant trade` for rule-following trades.
 8. Uncheck `Compliant trade` for rule breaks, then enter the alternate result and counterfactual analysis.
 9. Hover over trade rows to quickly preview saved comments or counterfactual analysis.
 10. Click a trade row to edit it.
+
+Entering realized R does not close a trade. Leave `Close type` blank while the trade is still active, even if you have taken partial profits. Set `Close type` only after the final exit.
 
 ## Updating the App
 

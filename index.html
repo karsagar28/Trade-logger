@@ -1107,7 +1107,7 @@
     </div>
 
     <div>
-      <div class="field-label">Close type <span class="opt">— optional</span></div>
+      <div class="field-label">Close type <span class="opt">— set only on final exit</span></div>
       <select id="f-close" onchange="onCloseTypeChange()">
         <option value="">Select…</option>
         <option value="Stop Hit">Stop Hit</option>
@@ -1126,7 +1126,7 @@
     </div>
 
     <div>
-      <div class="field-label">Result <span class="opt">— optional · negative = loss · 0 = breakeven</span></div>
+      <div class="field-label">Realized R <span class="opt">— partials allowed · does not close trade</span></div>
       <div class="r-wrap">
         <input type="number" id="f-result" class="input" placeholder="e.g. 2 or -1" step="0.25" />
         <span class="r-suffix">R</span>
@@ -1202,7 +1202,7 @@
     if (chevron) chevron.style.transform = statsVisible ? '' : 'rotate(-90deg)';
     if (statsVisible && currentTrades.length) {
       const rs = currentTrades
-        .filter(t => { const s = String(t.result ?? '').trim(); return s && !isNaN(parseR(t.result)); })
+        .filter(t => isTradeClosed(t) && !isNaN(parseR(t.result)))
         .map(t => parseR(t.result));
       drawHistogram(rs);
     }
@@ -1765,15 +1765,19 @@
     const closed = [];
     trades.forEach((t, i) => {
       const r = parseR(t.result);
-      const isOpen = !String(t.result ?? '').trim() || isNaN(r);
+      const isOpen = !isTradeClosed(t);
       (isOpen ? open : closed).push({ t, i, isOpen, r });
     });
 
     const renderRow = ({ t, i, isOpen, r }) => {
-      const cls = isOpen ? '' : r > 0 ? 'result-win' : r < 0 ? 'result-loss' : 'result-even';
-      const right = isOpen
-        ? '<span class="result-open">Open</span>'
-        : `<div class="trade-result ${cls}">${r > 0 ? '+' : ''}${r.toFixed(2)}<span class="unit">R</span></div>`;
+      const hasRealized = !isNaN(r);
+      const cls = !hasRealized ? '' : r > 0 ? 'result-win' : r < 0 ? 'result-loss' : 'result-even';
+      const right = hasRealized
+        ? `<div class="trade-result ${cls}">${formatRValue(r)}<span class="unit">R</span></div>`
+        : `<span class="result-open">${isOpen ? 'Open' : 'Closed'}</span>`;
+      const statusLabel = isOpen
+        ? (hasRealized ? 'partial realized' : 'open')
+        : 'final';
 
       const subBits = [t.date, t.strategyType, t.stopType].filter(Boolean);
       if (t.closeType) subBits.push(t.closeType);
@@ -1798,6 +1802,7 @@
           </div>
           <div class="trade-right">
             ${right}
+            <div class="trade-risk-lbl">${statusLabel}</div>
             <div class="trade-risk-lbl">${escapeHtml(displayRisk(t.risk))} risk</div>
             ${analysisBtn}
           </div>
@@ -1828,6 +1833,14 @@
     return String(t.compliant || 'Yes').toLowerCase() !== 'no';
   }
 
+  function isTradeClosed(t) {
+    return Boolean(String(t.closeType || '').trim());
+  }
+
+  function formatRValue(value) {
+    return (value > 0 ? '+' : '') + value.toFixed(2);
+  }
+
   function displayRisk(value) {
     const n = parseR(value);
     return isNaN(n) ? '1R' : `${n}R`;
@@ -1838,16 +1851,17 @@
     const withRiskState = trades.map(t => {
       const r = parseR(t.result);
       const risk = parseR(t.risk);
-      const isOpen = !String(t.result ?? '').trim() || isNaN(r);
+      const isOpen = !isTradeClosed(t);
       return { r, risk: isNaN(risk) ? 1 : risk, isOpen };
     });
     const closedRs = withRiskState.filter(t => !t.isOpen && !isNaN(t.r));
     const openRisks = withRiskState.filter(t => t.isOpen).map(t => t.risk);
+    const realizedRs = withRiskState.filter(t => !isNaN(t.r));
     const allRisks = withRiskState.map(t => t.risk);
 
     const totalRisked   = allRisks.reduce((a, b) => a + b, 0);
     const activeRisk    = openRisks.reduce((a, b) => a + b, 0);
-    const totalReturned = closedRs.reduce((a, b) => a + b.r, 0);
+    const totalReturned = realizedRs.reduce((a, b) => a + b.r, 0);
     const closedCount   = closedRs.length;
     const wins          = closedRs.filter(x => x.r > 0).length;
     const winRate       = closedCount ? Math.round((wins / closedCount) * 100) : 0;
@@ -1865,7 +1879,7 @@
     document.getElementById('s-risked').textContent   = totalRisked.toFixed(2);
     document.getElementById('s-returned').textContent = (totalReturned >= 0 ? '+' : '') + totalReturned.toFixed(2);
     document.getElementById('risk-return-note').textContent = totalRisked > 0
-      ? `${Math.round((totalReturned / totalRisked) * 100)}% returned against total risked`
+      ? `${Math.round((totalReturned / totalRisked) * 100)}% realized against total risked`
       : 'Returned as % of risked';
     const retWrap = document.getElementById('s-returned-wrap');
     retWrap.style.color = totalReturned > 0 ? 'var(--win)' : totalReturned < 0 ? 'var(--loss)' : '';
@@ -1911,10 +1925,12 @@
       return;
     }
 
-    // Adaptive bins anchored on zero. Extend exact outer edges so values like +13R
-    // are counted in a visible +13R bin instead of falling on the exclusive boundary.
+    // Adaptive bins anchored on zero. Positive outliers are grouped into a
+    // final +10R+ bucket so one oversized winner does not flatten the chart.
+    const positiveCap = 10;
+    const hasPositiveOverflow = rs.some(r => r >= positiveCap);
     const dataMin = Math.min(0, ...rs);
-    const dataMax = Math.max(0, ...rs);
+    const dataMax = Math.min(positiveCap, Math.max(0, ...rs));
     const baseLo = Math.floor(dataMin);
     const baseHi = Math.ceil(dataMax);
     const span = baseHi - baseLo;
@@ -1926,17 +1942,20 @@
     let lo = Math.floor(dataMin / binW) * binW;
     let hi = Math.ceil(dataMax / binW) * binW;
     if (dataMin < 0 && dataMin === lo) lo -= binW;
-    if (dataMax > 0 && dataMax === hi) hi += binW;
+    if (dataMax > 0 && dataMax === hi && !hasPositiveOverflow) hi += binW;
+    hi = Math.min(positiveCap, hi);
 
     const bins = [];
     for (let edge = 0; edge > lo; edge -= binW) bins.unshift([edge - binW, edge]);
-    for (let edge = 0; edge < hi; edge += binW) bins.push([edge, edge + binW]);
+    for (let edge = 0; edge < hi; edge += binW) bins.push([edge, Math.min(edge + binW, hi)]);
+    if (hasPositiveOverflow) bins.push([positiveCap, Infinity]);
 
     if (!bins.length) bins.push([0, binW]); // safety for all-zero edge case
 
     const counts = bins.map(([a, b]) =>
       rs.filter(r => {
         if (a < 0) return r > a && r <= b;
+        if (b === Infinity) return r >= a;
         if (b > 0) return r >= a && r < b;
         return false;
       }).length
@@ -1946,7 +1965,7 @@
     const gap = bins.length > 14 ? 2 : 4;
     const barW = (w - (bins.length - 1) * gap) / bins.length;
     const baseY = h - 16;
-    const fmt = n => (n > 0 ? '+' : '') + n + 'R';
+    const fmt = n => n === Infinity ? '+10R+' : (n > 0 ? '+' : '') + n + 'R';
 
     // Baseline
     const base = document.createElementNS(ns, 'line');
@@ -2000,7 +2019,7 @@
 
       const showLabel = i % labelEvery === 0 || i === bins.length - 1;
       if (showLabel) {
-        const edge = a < 0 ? b : a;
+        const edge = b === Infinity ? Infinity : a < 0 ? b : a;
         const lt = document.createElementNS(ns, 'text');
         lt.setAttribute('x', x + barW / 2);
         lt.setAttribute('y', h - 3);
@@ -2016,8 +2035,10 @@
     });
 
     // Bin width readout
-    if (binW > 1) {
-      note.textContent = `Bin width · ${binW}R`;
+    if (binW > 1 || hasPositiveOverflow) {
+      note.textContent = hasPositiveOverflow
+        ? `Bin width · ${binW}R · +10R+ grouped`
+        : `Bin width · ${binW}R`;
       note.style.display = 'block';
     } else {
       note.style.display = 'none';
@@ -2045,8 +2066,7 @@
     clearTimeout(resizeT);
     resizeT = setTimeout(() => {
       const closed = currentTrades.filter(t => {
-        const s = String(t.result ?? '').trim();
-        return s && !isNaN(parseR(t.result));
+        return isTradeClosed(t) && !isNaN(parseR(t.result));
       }).map(t => parseR(t.result));
       drawHistogram(closed);
     }, 120);
